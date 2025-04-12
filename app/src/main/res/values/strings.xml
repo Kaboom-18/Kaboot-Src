@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Context menu: main -->
+    <string name="menu_copy_text">Copy</string>
+    <string name="menu_paste_text">Paste</string>
+    <string name="menu_more">More…</string>
+
+    <string name="app_name">Kaboot</string>
+    <string name="repo">https://raw.githubusercontent.com/Kaboom-18/Kaboot/refs/heads/main/Packages.json</string>
+</resources>
