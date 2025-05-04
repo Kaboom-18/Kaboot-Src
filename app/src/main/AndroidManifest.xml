@@ -27,8 +27,5 @@
         <activity
             android:name=".terminal.TerminalActivity"
             android:exported="false" />
-        <activity
-        android:name="SettingsActivity"
-        android:exported="false"/>
     </application>
 </manifest>
