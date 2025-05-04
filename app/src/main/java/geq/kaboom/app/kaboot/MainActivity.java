@@ -1,12 +1,16 @@
 package geq.kaboom.app.kaboot;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,12 +35,11 @@ public class MainActivity extends AppCompatActivity {
     private File PATH;
     private ArrayList<HashMap<String, Object>> data;
     private ArrayList<HashMap<String, Object>> indata;
-    private MaterialToolbar toolbar;
     private RecyclerView list;
-    private ExtendedFloatingActionButton install;
+    private FloatingActionButton install;
     private SwipeRefreshLayout base;
-    private final android.app.Activity THIS = this;
     private String arch;
+    private MaterialToolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,15 +49,17 @@ public class MainActivity extends AppCompatActivity {
         list = findViewById(R.id.list);
         base = findViewById(R.id.base);
         install = findViewById(R.id.install);
+        toolbar = findViewById(R.id.toolbar);
 
         PATH = new File(getFilesDir(), "Packages");
         data = new ArrayList<>();
         indata = new ArrayList<>();
         arch = System.getProperty("os.arch");
 
-        list.setLayoutManager(new LinearLayoutManager(THIS));
+       setSupportActionBar(toolbar);
+        list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(new ListAdapter(data));
-
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -62,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        install.setOnClickListener(v -> showInstallDialog());
+        install.setOnClickListener((v) -> showInstallDialog());
 
         base.setOnRefreshListener(
                 () -> {
@@ -75,17 +81,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showInstallDialog() {
-        MaterialAlertDialogBuilder installd = new MaterialAlertDialogBuilder(THIS);
+        MaterialAlertDialogBuilder installd = new MaterialAlertDialogBuilder(this);
         installd.setOnDismissListener(dialog -> refresh());
 
-        RecyclerView list = new RecyclerView(THIS);
+        RecyclerView list = new RecyclerView(this);
         list.setPadding(8, 8, 8, 8);
 
         installd.setView(list);
         AlertDialog dialog = installd.create();
         dialog.setTitle("Install a package..");
 
-        list.setLayoutManager(new LinearLayoutManager(THIS));
+        list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(new InstallAdapter(dialog, indata));
 
         dialog.show();
@@ -112,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                             } catch (Exception e) {
                                 runOnUiThread(
                                         () -> {
-                                            KabUtil.toast(THIS, "Couldn't connect to repository");
+                                            KabUtil.toast(MainActivity.this, "Couldn't connect to repository");
                                             install.setVisibility(View.GONE);
                                         });
                             }
@@ -144,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                 names.add(process.get("name"));
             }
 
-            new MaterialAlertDialogBuilder(THIS)
+            new MaterialAlertDialogBuilder(this)
                     .setTitle("Kill a running process")
                     .setItems(
                             names.toArray(new String[0]),
@@ -153,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                                     KabUtil.killProcess(
                                             Integer.parseInt(processes.get(which).get("pid")));
                                     KabUtil.toast(
-                                            THIS,
+                                            MainActivity.this,
                                             "Process ["
                                                     + processes.get(which).get("name")
                                                     + "] with pid ["
@@ -161,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                                                     + "] killed successfully!");
                                 } catch (Exception e) {
                                     KabUtil.toast(
-                                            THIS,
+                                            MainActivity.this,
                                             "Failed to kill ["
                                                     + processes.get(which).get("name")
                                                     + "] with pid ["
@@ -172,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                     .show();
 
         } catch (Exception e) {
-            KabUtil.toast(THIS, "Couldn't fetch processes");
+            KabUtil.toast(MainActivity.this, "Couldn't fetch processes");
         }
     }
 
@@ -200,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             if (!PATH.mkdir()) {
-                KabUtil.toast(THIS, "I/O error occurred!");
+                KabUtil.toast(MainActivity.this, "I/O error occurred!");
                 finish();
             }
         }

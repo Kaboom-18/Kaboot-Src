@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/running_process"
-        android:icon="@android:drawable/ic_menu_manage"
+        android:icon="@drawable/ic_processes"
         android:title="Running Processes"
         app:showAsAction="always" />
 </menu>

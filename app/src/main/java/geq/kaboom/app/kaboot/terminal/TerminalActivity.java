@@ -38,6 +38,8 @@ public final class TerminalActivity extends AppCompatActivity {
     ExtraKeysView mExtraKeysView;
 
     TerminalSession mTermSession;
+    
+    MaterialToolbar toolbar;
 
     private boolean mVirtualControlKeyDown, mVirtualFnKeyDown;
 
@@ -45,8 +47,10 @@ public final class TerminalActivity extends AppCompatActivity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.activity_terminal);
-
-        getSupportActionBar().setTitle(getIntent().getStringExtra("name"));
+        
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle(getIntent().getStringExtra("name"));
 
         mTerminalView = findViewById(R.id.terminal_view);
         mExtraKeysView = findViewById(R.id.extra_keys);
