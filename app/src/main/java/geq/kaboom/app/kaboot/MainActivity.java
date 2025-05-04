@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         indata = new ArrayList<>();
         arch = System.getProperty("os.arch");
 
-       setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(new ListAdapter(data));
         
@@ -136,6 +136,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.running_process) {
             showRunningProcessesDialog();
+            return true;
+        }
+        if (item.getItemId() == R.id.settings){
+           Intent intent = new Intent();
+            intent.setClass(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
         return super.onOptionsItemSelected(item);
