@@ -2,17 +2,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
-
-        <item name="colorPrimary">#1F1F1F</item> <!--Toolbar-->
-        <item name="colorOnPrimary">#FFFFFF</item> <!--Toolbar Title-->
-        <item name="colorPrimaryContainer">#2C2C2C</item> <!--Floating Button-->
-        <item name="colorOnPrimaryContainer">#FFFFFF</item> <!--Floating Button Color-->
-        <item name="colorSurface">#121212</item> <!--CardView and AlertDialog-->
-        <item name="colorOnSurface">#FFFFFF</item> <!--AlertView Title-->
-        <item name="colorOnSurfaceVariant">#FFFFFF</item> <!-- AlertView Color-->
-        <item name="android:colorBackground">#121212</item> <!--Background-->
-        <item name="android:statusBarColor">?attr/colorPrimary</item> <!--Status Bar-->
-        <item name="android:navigationBarColor">?attr/colorSurface</item> <!--Navigation Bar-->
-        <item name="android:textColor">#FFFFFF</item> <!--TextColot-->
+        <item name="colorPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#1B1B1B</item>
+        <item name="colorSurface">#1C1C1C</item>
+        <item name="android:textColor">#EEEEEE</item>
+        <item name="android:colorBackground">#101010</item>
+        <item name="android:statusBarColor">#191919</item>
+        
+        <item name="colorOnPrimaryContainer">?attr/android:textColor</item>
+        <item name="android:navigationBarColor">?attr/android:colorBackground</item>
+        <item name="colorOnSurface">?attr/android:textColor</item>
+        <item name="colorOnSurfaceVariant">?attr/android:textColor</item>
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="android:fontFamily">@font/font</item>
     </style>
 </resources>

@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:layout_margin="8dp"
-    app:cardElevation="5dp"
     app:cardCornerRadius="10dp">
 
     <LinearLayout
@@ -41,12 +40,10 @@
                 android:focusable="false"
                 android:id="@+id/prog" />
             <TextView
-                android:text="logs"
                 android:singleLine="true"
-                android:textStyle="bold"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:textSize="16dp"
+                android:textSize="12dp"
                 android:visibility="gone"
                 android:id="@+id/log" />
         </LinearLayout>

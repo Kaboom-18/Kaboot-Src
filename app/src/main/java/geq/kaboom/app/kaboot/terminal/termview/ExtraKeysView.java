@@ -152,7 +152,7 @@ public final class ExtraKeysView extends GridLayout {
                 }
 
                 button.setText(buttonText);
-                button.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "console_font.ttf"));
+                button.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "terminal.ttf"));
                 button.setTextColor(TEXT_COLOR);
                 button.setPadding(0, 0, 0, 0);
 

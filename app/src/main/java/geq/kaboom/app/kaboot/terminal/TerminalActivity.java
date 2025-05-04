@@ -32,6 +32,7 @@ public final class TerminalActivity extends AppCompatActivity {
     private final int MAX_FONTSIZE = 256;
     private int MIN_FONTSIZE;
     private static int currentFontSize = -1;
+    private static float escale = 9.5f;
 
     TerminalView mTerminalView;
 
@@ -51,6 +52,7 @@ public final class TerminalActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getIntent().getStringExtra("name"));
+        escale = 10.5f;
 
         mTerminalView = findViewById(R.id.terminal_view);
         mExtraKeysView = findViewById(R.id.extra_keys);
@@ -155,19 +157,19 @@ public final class TerminalActivity extends AppCompatActivity {
 
     private void setupTerminalStyle() {
         float scale = getResources().getDisplayMetrics().scaledDensity;
-        int defaultFontSize = Math.round(9.5f * scale);
+        int defaultFontSize = Math.round(escale * scale);
         if (defaultFontSize % 2 == 1) defaultFontSize--;
 
         if (TerminalActivity.currentFontSize == -1) {
             TerminalActivity.currentFontSize = defaultFontSize;
         }
 
-        MIN_FONTSIZE = (int) (4f * scale);
+        MIN_FONTSIZE = (int) (escale-5f * scale);
 
         TerminalActivity.currentFontSize =
                 Math.max(MIN_FONTSIZE, Math.min(TerminalActivity.currentFontSize, MAX_FONTSIZE));
         mTerminalView.setTextSize(TerminalActivity.currentFontSize);
-        mTerminalView.setTypeface(Typeface.createFromAsset(getAssets(), "console_font.ttf"));
+        mTerminalView.setTypeface(Typeface.createFromAsset(getAssets(), "terminal.ttf"));
     }
 
     @Override
