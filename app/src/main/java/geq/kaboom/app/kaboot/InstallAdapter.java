@@ -155,7 +155,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
                                                 + "/libkaboot.so");
                                 command.add("-l");
                                 command.add("tar");
-                                command.add("-xvJf");
+                                command.add("-xvzf");
                                 command.add(archivefile.getAbsolutePath());
                                 command.add("-C");
                                 command.add(_pkgpath);

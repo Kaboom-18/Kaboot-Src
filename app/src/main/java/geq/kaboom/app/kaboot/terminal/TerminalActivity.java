@@ -112,7 +112,7 @@ public final class TerminalActivity extends AppCompatActivity {
         }
         mTermSession =
                 new TerminalSession(
-                        cmd.toArray(new String[0]),
+                      cmd.toArray(new String[0]),
                         new String[] {
                             "LD_LIBRARY_PATH=".concat(libdir),
                             "PROOT_LOADER=".concat(libdir.concat("/libkabooter.so")),
