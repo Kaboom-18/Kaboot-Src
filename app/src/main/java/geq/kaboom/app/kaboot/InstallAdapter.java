@@ -1,19 +1,21 @@
 package geq.kaboom.app.kaboot;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,46 +29,42 @@ import java.util.HashMap;
 
 public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHolder> {
 
-    private ArrayList<HashMap<String, Object>> data;
-    private Dialog dialog;
+    private final ArrayList<HashMap<String, Object>> data;
+    private final AlertDialog dialog;
     private Context context;
-    private boolean installing=false;
+    private boolean installing = false;
 
-    public InstallAdapter(Dialog dial, ArrayList<HashMap<String, Object>> _arr) {
-        dialog = dial;
-        data = _arr;
+    public InstallAdapter(AlertDialog dialog, ArrayList<HashMap<String, Object>> dataList) {
+        this.dialog = dialog;
+        this.data = dataList;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View _v =
-                LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.install_pkg, parent, false);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
-        return new ViewHolder(_v);
+        View view = LayoutInflater.from(context).inflate(R.layout.install_pkg, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int POS) {
-        holder.name.setText(data.get(POS).get("name").toString());
-        holder.name.setOnClickListener(
-                v -> {
-                    if(!installing){
-                        installing = true;
-                    if (data.get(POS).get("url") != null) {
-                        installer(
-                                holder,
-                                data.get(POS).get("url").toString(),
-                                context.getCacheDir().getAbsolutePath(),
-                                context.getFilesDir().getAbsolutePath()
-                                        + "/Packages/"
-                                        + data.get(POS).get("name").toString());
-                    } else {
-                        installing = false;
-                        KabUtil.toast(context, "Unsupported arch!");
-                    }
-                    }
-                });
+    public void onBindViewHolder(@NonNull ViewHolder holder, int pos) {
+        HashMap<String, Object> item = data.get(pos);
+        String name = item.get("name").toString();
+        holder.name.setText(name);
+
+        holder.name.setOnClickListener(v -> {
+            if (installing) return;
+
+            String url = item.get("url") != null ? item.get("url").toString() : null;
+            if (url != null) {
+                installing = true;
+                installer(holder, url, context.getCacheDir().getAbsolutePath(),
+                        context.getFilesDir().getAbsolutePath() + "/Packages/" + name);
+            } else {
+                KabUtil.toast(context, "Unsupported arch!");
+            }
+        });
     }
 
     @Override
@@ -74,11 +72,10 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
         return data.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView name;
-        private LinearLayout download;
-        private LinearProgressIndicator prog;
-        private TextView log;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView name, log;
+        LinearLayout download;
+        LinearProgressIndicator prog;
 
         public ViewHolder(View v) {
             super(v);
@@ -89,135 +86,102 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
         }
     }
 
-    public void installer(
-            final ViewHolder holder,
-            final String _link,
-            final String _downloadpath,
-            final String _pkgpath) {
-
+    private void installer(ViewHolder holder, String url, String downloadPath, String pkgPath) {
         holder.download.setVisibility(View.VISIBLE);
         dialog.setCancelable(false);
+
         Handler handler = new Handler(Looper.getMainLooper());
 
-        new Thread(
-                        () -> {
-                            InputStream input = null;
-                            FileOutputStream output = null;
-                            HttpURLConnection connection = null;
+        new Thread(() -> {
+            InputStream input = null;
+            FileOutputStream output = null;
+            HttpURLConnection connection = null;
 
-                            try {
-                                URL url = new URL(_link);
-                                connection = (HttpURLConnection) url.openConnection();
-                                connection.connect();
+            try {
+                URL link = new URL(url);
+                connection = (HttpURLConnection) link.openConnection();
+                connection.connect();
 
-                                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                                    throw new RuntimeException("Download failed!");
-                                }
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    throw new RuntimeException("Download failed!");
+                }
 
-                                int fileLength = connection.getContentLength();
-                                input = new BufferedInputStream(connection.getInputStream());
-                                File archivefile =
-                                        new File(
-                                                _downloadpath
-                                                        + File.separator
-                                                        + Uri.parse(_link).getLastPathSegment());
-                                output = new FileOutputStream(archivefile);
+                int fileLength = connection.getContentLength();
+                File archiveFile = new File(downloadPath, Uri.parse(url).getLastPathSegment());
+                input = new BufferedInputStream(connection.getInputStream());
+                output = new FileOutputStream(archiveFile);
 
-                                byte[] data = new byte[4096];
-                                long total = 0;
-                                int count;
+                byte[] buffer = new byte[4096];
+                long total = 0;
+                int count;
+                while ((count = input.read(buffer)) != -1) {
+                    total += count;
+                    int progress = (int) (total * 100 / fileLength);
+                    handler.post(() -> holder.prog.setProgress(progress));
+                    output.write(buffer, 0, count);
+                }
 
-                                while ((count = input.read(data)) != -1) {
-                                    total += count;
-                                    if (fileLength > 0) {
-                                        int pro = (int) (total * 100 / fileLength);
-                                        handler.post(() -> holder.prog.setProgress(pro));
-                                    }
-                                    output.write(data, 0, count);
-                                }
+                input.close();
+                output.close();
 
-                                handler.post(
-                                        () -> {
-                                            KabUtil.toast(context, "Download completed!");
-                                            holder.prog.setVisibility(View.GONE);
-                                            holder.log.setVisibility(View.VISIBLE);
-                                        });
+                handler.post(() -> {
+                    KabUtil.toast(context, "Download completed!");
+                    holder.prog.setVisibility(View.GONE);
+                    holder.log.setVisibility(View.VISIBLE);
+                });
 
-                                input.close();
-                                output.close();
+                KabUtil.deleteFile(pkgPath);
+                KabUtil.makeDir(pkgPath);
 
-                                KabUtil.deleteFile(_pkgpath);
-                                KabUtil.makeDir(_pkgpath);
+                ArrayList<String> command = new ArrayList<>();
+                command.add(context.getApplicationInfo().nativeLibraryDir + "/libkaboot.so");
+                command.add("-l");
+                command.add("tar");
+                command.add("-xvzf");
+                command.add(archiveFile.getAbsolutePath());
+                command.add("-C");
+                command.add(pkgPath);
 
-                                ArrayList<String> command = new ArrayList<>();
-                                command.add(
-                                        context.getApplicationInfo().nativeLibraryDir
-                                                + "/libkaboot.so");
-                                command.add("-l");
-                                command.add("tar");
-                                command.add("-xvzf");
-                                command.add(archivefile.getAbsolutePath());
-                                command.add("-C");
-                                command.add(_pkgpath);
+                ProcessBuilder pb = new ProcessBuilder(command);
+                pb.environment().put("LD_LIBRARY_PATH", context.getApplicationInfo().nativeLibraryDir);
+                pb.environment().put("PROOT_LOADER", context.getApplicationInfo().nativeLibraryDir + "/libkabooter.so");
+                pb.environment().put("PROOT_LOADER_32", context.getApplicationInfo().nativeLibraryDir + "/libkabooter32.so");
 
-                                ProcessBuilder pb = new ProcessBuilder(command);
-                                pb.environment()
-                                        .put(
-                                                "LD_LIBRARY_PATH",
-                                                context.getApplicationInfo().nativeLibraryDir);
-                                pb.environment()
-                                        .put(
-                                                "PROOT_LOADER",
-                                                context.getApplicationInfo().nativeLibraryDir
-                                                        + "/libkabooter.so");
-                                pb.environment()
-                                        .put(
-                                                "PROOT_LOADER_32",
-                                                context.getApplicationInfo().nativeLibraryDir
-                                                        + "/libkabooter32.so");
+                Process proc = pb.start();
+                proc.getErrorStream().close();
 
-                                java.lang.Process proc = pb.start();
-                                proc.getErrorStream().close();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String finalLine = line;
+                    handler.post(() -> holder.log.setText(finalLine));
+                }
+                proc.waitFor();
+                reader.close();
 
-                                BufferedReader reader =
-                                        new BufferedReader(
-                                                new InputStreamReader(proc.getInputStream()));
-                                String line;
-                                while ((line = reader.readLine()) != null) {
-                                    final String fline = line;
-                                    handler.post(() -> holder.log.setText(fline));
-                                }
+                KabUtil.deleteFile(archiveFile.getAbsolutePath());
 
-                                proc.waitFor();
-                                reader.close();
+                handler.post(() -> {
+                    installing = false;
+                    KabUtil.toast(context, "Extraction completed!");
+                    dialog.dismiss();
+                });
 
-                                KabUtil.deleteFile(archivefile.getAbsolutePath());
-
-                                handler.post(
-                                        () -> {
-                                            installing = false;
-                                            KabUtil.toast(context, "Extraction completed!");
-                                            dialog.dismiss();
-                                        });
-
-                            } catch (final Exception e) {
-                                handler.post(
-                                        () -> {
-                                            installing = false;
-                                            dialog.dismiss();
-                                            KabUtil.toast(context, "Installation failed!");
-                                        });
-                            } finally {
-                                try {
-                                    if (output != null) output.close();
-                                    if (input != null) input.close();
-                                } catch (Exception ignored) {
-                                    ignored.printStackTrace();
-                                }
-
-                                if (connection != null) connection.disconnect();
-                            }
-                        })
-                .start();
+            } catch (Exception e) {
+                handler.post(() -> {
+                    installing = false;
+                    KabUtil.toast(context, "Installation failed!");
+                    dialog.dismiss();
+                });
+            } finally {
+                try {
+                    if (output != null) output.close();
+                    if (input != null) input.close();
+                } catch (Exception ignored) {
+                    ignored.printStackTrace();
+                }
+                if (connection != null) connection.disconnect();
+            }
+        }).start();
     }
 }

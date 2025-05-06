@@ -3,70 +3,81 @@ package geq.kaboom.app.kaboot;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import geq.kaboom.app.kaboot.terminal.TerminalActivity;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.json.JSONObject;
+
+import geq.kaboom.app.kaboot.terminal.TerminalActivity;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
     private final ArrayList<HashMap<String, Object>> data;
     private Context context;
 
-    public ListAdapter(ArrayList<HashMap<String, Object>> _arr) {
-        this.data = _arr;
+    public ListAdapter(ArrayList<HashMap<String, Object>> initialData) {
+        this.data = new ArrayList<>(initialData);
+    }
+
+    public void updateData(ArrayList<HashMap<String, Object>> newData) {
+        data.clear();
+        data.addAll(newData);
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view =
-                LayoutInflater.from(parent.getContext()).inflate(R.layout.list_pkg, parent, false);
         context = parent.getContext();
+        View view = LayoutInflater.from(context).inflate(R.layout.list_pkg, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, final int POS) {
-        String packagePath = data.get(POS).get("path").toString();
-        holder.name.setText(Uri.parse(packagePath).getLastPathSegment());
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+        HashMap<String, Object> item = data.get(position);
+        String packagePath = item.get("path").toString();
+        String packageName = Uri.parse(packagePath).getLastPathSegment();
 
-        Intent intent = new Intent();
-        holder.size.setText(data.get(POS).get("size").toString());
+        holder.name.setText(packageName);
+        holder.size.setText(item.get("size").toString());
+
+        Intent intent = new Intent(context, TerminalActivity.class);
         intent.putExtra("pkgPath", packagePath);
-        intent.putExtra("name", holder.name.getText().toString());
+        intent.putExtra("name", packageName);
+
         try {
-            String configcnt = KabUtil.readFile(packagePath + "/config.json");
-            intent.putExtra("config", configcnt);
+            String configContent = KabUtil.readFile(packagePath + "/config.json");
+            intent.putExtra("config", configContent);
+            holder.icon.setVisibility(View.VISIBLE);
         } catch (Exception e) {
             holder.icon.setVisibility(View.GONE);
             holder.name.setText("Invalid Package!");
         }
-        intent.setClass(context, TerminalActivity.class);
+
         holder.icon.setOnClickListener(v -> context.startActivity(intent));
-        holder.base.setOnLongClickListener(
-                v -> {
-                    showDeleteDialog(packagePath, POS);
-                    return true;
-                });
+        holder.base.setOnLongClickListener(v -> {
+            showDeleteDialog(packagePath, position);
+            return true;
+        });
     }
 
     private void showDeleteDialog(String packagePath, int pos) {
+        String packageName = new File(packagePath).getName();
+
         new MaterialAlertDialogBuilder(context)
-                .setTitle("Delete " + new File(packagePath).getName() + " package?")
+                .setTitle("Delete " + packageName + " package?")
                 .setPositiveButton("Delete", (dialog, which) -> deletePackage(packagePath, pos))
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -90,17 +101,16 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name;
-        TextView size;
+        TextView name, size;
         ImageView icon;
         LinearLayout base;
 
-        public ViewHolder(View v) {
-            super(v);
-            base = v.findViewById(R.id.base);
-            name = v.findViewById(R.id.name);
-            icon = v.findViewById(R.id.icon);
-            size = v.findViewById(R.id.size);
+        public ViewHolder(View itemView) {
+            super(itemView);
+            base = itemView.findViewById(R.id.base);
+            name = itemView.findViewById(R.id.name);
+            icon = itemView.findViewById(R.id.icon);
+            size = itemView.findViewById(R.id.size);
         }
     }
 }

@@ -69,6 +69,7 @@ public final class TerminalActivity extends AppCompatActivity {
         cmd.add("-w");
         cmd.add("/");
         cmd.add("-b");
+        //If any binds changed add it in mainactivity also
         cmd.add("/dev");
         cmd.add("-b");
         cmd.add("/proc");

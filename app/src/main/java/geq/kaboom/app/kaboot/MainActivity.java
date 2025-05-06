@@ -3,14 +3,12 @@ package geq.kaboom.app.kaboot;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,111 +17,173 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
     private File PATH;
-    private ArrayList<HashMap<String, Object>> data;
-    private ArrayList<HashMap<String, Object>> indata;
+    private final ArrayList<HashMap<String, Object>> data = new ArrayList<>();
+    private final ArrayList<HashMap<String, Object>> indata = new ArrayList<>();
     private RecyclerView list;
     private FloatingActionButton install;
     private SwipeRefreshLayout base;
     private String arch;
     private MaterialToolbar toolbar;
+    private ListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
         list = findViewById(R.id.list);
         base = findViewById(R.id.base);
         install = findViewById(R.id.install);
         toolbar = findViewById(R.id.toolbar);
 
+        setSupportActionBar(toolbar);
+
         PATH = new File(getFilesDir(), "Packages");
-        data = new ArrayList<>();
-        indata = new ArrayList<>();
         arch = System.getProperty("os.arch");
 
-        setSupportActionBar(toolbar);
+        adapter = new ListAdapter(data);
         list.setLayoutManager(new LinearLayoutManager(this));
-        list.setAdapter(new ListAdapter(data));
-        
+        list.setAdapter(adapter);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(
-                        this, new String[] {Manifest.permission.POST_NOTIFICATIONS}, 101);
+                        this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
             }
         }
 
-        install.setOnClickListener((v) -> showInstallDialog());
+        install.setOnClickListener(v -> showInstallDialog());
 
-        base.setOnRefreshListener(
-                () -> {
-                    refresh();
-                    base.setRefreshing(false);
-                });
-
+        base.setOnRefreshListener(() -> refresh());
+        
         refresh();
         fetchPackages();
     }
 
     private void showInstallDialog() {
-        MaterialAlertDialogBuilder installd = new MaterialAlertDialogBuilder(this);
-        installd.setOnDismissListener(dialog -> refresh());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setOnDismissListener(dialog -> refresh());
 
-        RecyclerView list = new RecyclerView(this);
-        list.setPadding(8, 8, 8, 8);
-
-        installd.setView(list);
-        AlertDialog dialog = installd.create();
-        dialog.setTitle("Install a package..");
-
-        list.setLayoutManager(new LinearLayoutManager(this));
-        list.setAdapter(new InstallAdapter(dialog, indata));
-
+        RecyclerView installList = new RecyclerView(this);
+        installList.setPadding(7, 14, 7, 14);
+        installList.setLayoutManager(new LinearLayoutManager(this));
+        builder.setTitle("Install a package..");
+        builder.setView(installList);
+        AlertDialog dialog = builder.create();
+        installList.setAdapter(new InstallAdapter(dialog, indata));
         dialog.show();
     }
 
     private void fetchPackages() {
         indata.clear();
-        new Thread(
-                        () -> {
-                            try {
-                                JSONArray resp =
-                                        new JSONArray(KabUtil.fetch(getString(R.string.repo)));
+        new Thread(() -> {
+            try {
+                JSONArray resp = new JSONArray(KabUtil.fetch(getString(R.string.repo)));
 
-                                for (int i = 0; i < resp.length(); i++) {
-                                    JSONObject pkg = resp.getJSONObject(i);
-                                    HashMap<String, Object> p = new HashMap<>();
-                                    JSONObject js = new JSONObject();
-                                    JSONObject url = pkg.getJSONObject("url");
-                                    p.put("name", pkg.getString("name"));
-                                    p.put("url", url.getString(arch));
-                                    indata.add(p);
-                                }
-                                runOnUiThread(() -> install.setVisibility(View.VISIBLE));
+                for (int i = 0; i < resp.length(); i++) {
+                    JSONObject pkg = resp.getJSONObject(i);
+                    JSONObject url = pkg.getJSONObject("url");
+
+                    HashMap<String, Object> p = new HashMap<>();
+                    p.put("name", pkg.getString("name"));
+                    p.put("url", url.getString(arch));
+                    indata.add(p);
+                }
+
+                runOnUiThread(() -> install.setVisibility(View.VISIBLE));
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    KabUtil.toast(MainActivity.this, "Couldn't connect to repository");
+                    install.setVisibility(View.GONE);
+                });
+            }
+        }).start();
+    }
+
+    private void refresh() {
+        if(!base.isRefreshing())base.setRefreshing(true);
+        new Thread(() -> {
+            ArrayList<HashMap<String, Object>> tempData = new ArrayList<>();
+
+            if (PATH.exists() && PATH.isDirectory()) {
+                File[] files = PATH.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.isDirectory() && !file.getName().startsWith(".")) {
+                            HashMap<String, Object> fileData = new HashMap<>();
+                            fileData.put("path", file.getAbsolutePath());
+                            fileData.put("size", KabUtil.getFolderSize(file));
+                            tempData.add(fileData);
+                        }
+                    }
+                }
+            } else {
+                if (!PATH.mkdir()) {
+                    runOnUiThread(() -> {
+                        KabUtil.toast(MainActivity.this, "I/O error occurred!");
+                        finish();
+                    });
+                    return;
+                }
+            }
+
+            runOnUiThread(() -> {
+                data.clear();
+                data.addAll(tempData);
+                adapter.updateData(data);
+                base.setRefreshing(false);
+            });
+        }).start();
+    }
+
+    private void showRunningProcessesDialog() {
+        new Thread(() -> {
+            ArrayList<String> names = new ArrayList<>();
+            ArrayList<HashMap<String, String>> processes;
+
+            try {
+                processes = KabUtil.getProcesses();
+                for (HashMap<String, String> process : processes) {
+                    names.add(process.get("name"));
+                }
+
+                runOnUiThread(() -> new MaterialAlertDialogBuilder(this)
+                        .setTitle("Kill a running process")
+                        .setItems(names.toArray(new String[0]), (dialog, which) -> {
+                            try {
+                                int pid = Integer.parseInt(processes.get(which).get("pid"));
+                                String name = processes.get(which).get("name");
+
+                                KabUtil.killProcess(pid);
+                                KabUtil.toast(MainActivity.this,
+                                        "Process [" + name + "] with pid [" + pid + "] killed successfully!");
                             } catch (Exception e) {
-                                runOnUiThread(
-                                        () -> {
-                                            KabUtil.toast(MainActivity.this, "Couldn't connect to repository");
-                                            install.setVisibility(View.GONE);
-                                        });
+                                KabUtil.toast(MainActivity.this,
+                                        "Failed to kill [" + processes.get(which).get("name")
+                                                + "] with pid [" + processes.get(which).get("pid") + "]");
                             }
-                        })
-                .start();
+                        }).show());
+
+            } catch (Exception e) {
+                runOnUiThread(() -> KabUtil.toast(MainActivity.this, "Couldn't fetch processes"));
+            }
+        }).start();
     }
 
     @Override
@@ -138,83 +198,10 @@ public class MainActivity extends AppCompatActivity {
             showRunningProcessesDialog();
             return true;
         }
-        if (item.getItemId() == R.id.settings){
-           Intent intent = new Intent();
-            intent.setClass(this, SettingsActivity.class);
-            startActivity(intent);
+        if (item.getItemId() == R.id.settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void showRunningProcessesDialog() {
-        ArrayList<String> names = new ArrayList<>();
-
-        try {
-            ArrayList<HashMap<String, String>> processes = KabUtil.getProcesses();
-            for (HashMap<String, String> process : processes) {
-                names.add(process.get("name"));
-            }
-
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("Kill a running process")
-                    .setItems(
-                            names.toArray(new String[0]),
-                            (dialog, which) -> {
-                                try {
-                                    KabUtil.killProcess(
-                                            Integer.parseInt(processes.get(which).get("pid")));
-                                    KabUtil.toast(
-                                            MainActivity.this,
-                                            "Process ["
-                                                    + processes.get(which).get("name")
-                                                    + "] with pid ["
-                                                    + processes.get(which).get("pid")
-                                                    + "] killed successfully!");
-                                } catch (Exception e) {
-                                    KabUtil.toast(
-                                            MainActivity.this,
-                                            "Failed to kill ["
-                                                    + processes.get(which).get("name")
-                                                    + "] with pid ["
-                                                    + processes.get(which).get("pid")
-                                                    + "]");
-                                }
-                            })
-                    .show();
-
-        } catch (Exception e) {
-            KabUtil.toast(MainActivity.this, "Couldn't fetch processes");
-        }
-    }
-
-    private void refresh() {
-        data.clear();
-
-        if (PATH.exists() && PATH.isDirectory()) {
-            File[] files = PATH.listFiles();
-
-            if (files != null) {
-                boolean dirFound = false;
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        dirFound = true;
-                        HashMap<String, Object> fileData = new HashMap<>();
-                        fileData.put("path", file.getAbsolutePath());
-                        fileData.put("size", KabUtil.formatSize(KabUtil.getFolderSize(file)));
-                        data.add(fileData);
-                    }
-                }
-
-                if (dirFound) {
-                    list.getAdapter().notifyDataSetChanged();
-                }
-            }
-        } else {
-            if (!PATH.mkdir()) {
-                KabUtil.toast(MainActivity.this, "I/O error occurred!");
-                finish();
-            }
-        }
     }
 }

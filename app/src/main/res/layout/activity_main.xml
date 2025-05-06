@@ -29,6 +29,8 @@
         <androidx.recyclerview.widget.RecyclerView
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:paddingTop="4dp"
+            android:paddingBottom="2dp"
             android:id="@+id/list" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     <com.google.android.material.floatingactionbutton.FloatingActionButton

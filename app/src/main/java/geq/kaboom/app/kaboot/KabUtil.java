@@ -5,10 +5,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -18,7 +20,7 @@ public class KabUtil {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public static String fetch(final String urlString) throws Exception {
+    public static String fetch(String urlString) throws IOException {
         StringBuilder content = new StringBuilder();
         HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection();
         connection.setRequestMethod("GET");
@@ -26,28 +28,28 @@ public class KabUtil {
 
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw new RuntimeException("HTTP request failed with response code: " + responseCode);
+            throw new IOException("HTTP request failed with code: " + responseCode);
         }
 
-        try (BufferedReader in =
-                new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 content.append(inputLine);
             }
+        } finally {
+            connection.disconnect();
         }
 
-        connection.disconnect();
         return content.toString();
     }
 
-    public static void deleteFile(String path) throws Exception {
+    public static void deleteFile(String path) throws IOException, InterruptedException {
         new ProcessBuilder("rm", "-rf", path).start().waitFor();
     }
 
     public static void makeDir(String path) {
         File file = new File(path);
-        if (!isExistFile(file.getAbsolutePath())) {
+        if (!file.exists()) {
             file.mkdirs();
         }
     }
@@ -57,23 +59,21 @@ public class KabUtil {
     }
 
     private static void createNewFile(String path) throws IOException {
-        int lastSep = path.lastIndexOf(File.separator);
-        if (lastSep > 0) {
-            String dirPath = path.substring(0, lastSep);
-            makeDir(dirPath);
+        File file = new File(path);
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
         }
 
-        File file = new File(path);
         if (!file.exists()) {
             file.createNewFile();
         }
     }
 
-    public static void writeFile(String path, String str) throws IOException {
+    public static void writeFile(String path, String content) throws IOException {
         createNewFile(path);
-        try (FileWriter fileWriter = new FileWriter(new File(path), false)) {
-            fileWriter.write(str);
-            fileWriter.flush();
+        try (FileWriter writer = new FileWriter(path, false)) {
+            writer.write(content);
         }
     }
 
@@ -81,31 +81,32 @@ public class KabUtil {
         createNewFile(path);
         StringBuilder sb = new StringBuilder();
 
-        try (FileReader fr = new FileReader(new File(path))) {
-            char[] buff = new char[1024];
-            int length;
-            while ((length = fr.read(buff)) > 0) {
-                sb.append(new String(buff, 0, length));
+        try (FileReader fr = new FileReader(path);
+             BufferedReader br = new BufferedReader(fr)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append('\n');
             }
         }
 
-        return sb.toString();
+        return sb.toString().trim();
     }
 
-    public static ArrayList<HashMap<String, String>> getProcesses() throws Exception {
+    public static ArrayList<HashMap<String, String>> getProcesses() throws IOException, InterruptedException {
         ArrayList<HashMap<String, String>> processList = new ArrayList<>();
         Process process = new ProcessBuilder("ps", "-eo", "pid,comm").start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line;
 
-        reader.readLine();
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.trim().split("\\s+", 2);
-            if (parts.length == 2) {
-                HashMap<String, String> processInfo = new HashMap<>();
-                processInfo.put("pid", parts[0]);
-                processInfo.put("name", parts[1]);
-                processList.add(processInfo);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            reader.readLine(); // skip header
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.trim().split("\\s+", 2);
+                if (parts.length == 2) {
+                    HashMap<String, String> map = new HashMap<>();
+                    map.put("pid", parts[0]);
+                    map.put("name", parts[1]);
+                    processList.add(map);
+                }
             }
         }
 
@@ -113,52 +114,53 @@ public class KabUtil {
         return processList;
     }
 
-    public static void killProcess(int pid) throws Exception {
+    public static void killProcess(int pid) throws IOException, InterruptedException {
         new ProcessBuilder("kill", "-9", String.valueOf(pid)).start().waitFor();
     }
 
     public static int getPort() {
-        int port;
         try (ServerSocket socket = new ServerSocket(0)) {
-            port = socket.getLocalPort();
-        } catch (Exception e) {
-            port = -1;
+            return socket.getLocalPort();
+        } catch (IOException e) {
+            return -1;
         }
-        return port;
     }
 
     public static void errorDialog(Context context, String content) {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
-        TextView cont = new TextView(context);
-        cont.setText(content);
-        builder.setView(cont);
-        builder.show();
+        TextView messageView = new TextView(context);
+        messageView.setText(content);
+        new MaterialAlertDialogBuilder(context)
+                .setTitle("Error")
+                .setView(messageView)
+                .setPositiveButton("OK", null)
+                .show();
     }
 
-   public static long getFolderSize(File folder) {
-    long totalSize = 0;
+    public static String getFolderSize(File file) {
+        long size = calculateSize(file);
+        String[] units = {"B", "KB", "MB", "GB", "TB"};
+        int index = 0;
+        double adjusted = size;
 
-    if (folder != null && folder.exists()) {
-        File[] files = folder.listFiles();
+        while (adjusted >= 1024 && index < units.length - 1) {
+            adjusted /= 1024;
+            index++;
+        }
 
+        return String.format("%.1f%s", adjusted, units[index]);
+    }
+
+    private static long calculateSize(File file) {
+        if (Files.isSymbolicLink(file.toPath())) return 0;
+        if (file.isFile()) return file.length();
+
+        long total = 0;
+        File[] files = file.listFiles();
         if (files != null) {
-            for (File file : files) {
-                if (file.isFile()) {
-                    totalSize += file.length();
-                } else if (file.isDirectory()) {
-                    totalSize += getFolderSize(file);
-                }
+            for (File f : files) {
+                total += calculateSize(f);
             }
         }
+        return total;
     }
-
-    return totalSize;
-}
-public static String formatSize(long size) {
-    if (size <= 0) return "0.00B";
-    final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
-    int unitIndex = (int) (Math.log10(size) / Math.log10(1024));
-    double sizeInUnit = size / Math.pow(1024, unitIndex);
-    return String.format("%.2f%s", sizeInUnit, units[unitIndex]);
-}
 }
