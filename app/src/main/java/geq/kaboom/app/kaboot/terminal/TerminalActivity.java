@@ -50,8 +50,8 @@ public final class TerminalActivity extends AppCompatActivity {
         setContentView(R.layout.activity_terminal);
         
         toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         toolbar.setTitle(getIntent().getStringExtra("name"));
+        setSupportActionBar(toolbar);
         escale = 10.5f;
 
         mTerminalView = findViewById(R.id.terminal_view);
@@ -69,7 +69,6 @@ public final class TerminalActivity extends AppCompatActivity {
         cmd.add("-w");
         cmd.add("/");
         cmd.add("-b");
-        //If any binds changed add it in mainactivity also
         cmd.add("/dev");
         cmd.add("-b");
         cmd.add("/proc");
@@ -186,8 +185,7 @@ public final class TerminalActivity extends AppCompatActivity {
     }
 
     public void onBack() {
-        mTermSession.finishIfRunning();
-        finish();
+        KabUtil.toast(this, "Consider terminating the session manually!");
     }
 
     public void doPaste() {
