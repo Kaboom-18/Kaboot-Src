@@ -38,7 +38,7 @@
              android:layout_height="wrap_content"
              android:layout_width="wrap_content"
              android:padding="5dp"
-             android:textSize="12sp"
+             android:textSize="10sp"
              android:focusable="false"
              android:id="@+id/size"
              android:textStyle="bold" />
