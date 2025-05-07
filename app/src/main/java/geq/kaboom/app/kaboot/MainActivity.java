@@ -2,6 +2,7 @@ package geq.kaboom.app.kaboot;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,10 +38,9 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView list;
     private FloatingActionButton install;
     private SwipeRefreshLayout base;
-    private String arch;
     private MaterialToolbar toolbar;
     private ListAdapter adapter;
-
+   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,12 +54,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         PATH = new File(getFilesDir(), "Packages");
-        arch = System.getProperty("os.arch");
-
         adapter = new ListAdapter(data);
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(adapter);
 
+        //debug permission remove in release
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -99,10 +98,15 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < resp.length(); i++) {
                     JSONObject pkg = resp.getJSONObject(i);
                     JSONObject url = pkg.getJSONObject("url");
-
+                    
                     HashMap<String, Object> p = new HashMap<>();
                     p.put("name", pkg.getString("name"));
-                    p.put("url", url.getString(arch));
+                    for(String arc : Build.SUPPORTED_ABIS){
+                    if(url.has(arc)){
+                        p.put("url", url.getString(arc));
+                        break;
+                    }
+                    }
                     indata.add(p);
                 }
 

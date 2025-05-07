@@ -118,14 +118,6 @@ public class KabUtil {
         new ProcessBuilder("kill", "-9", String.valueOf(pid)).start().waitFor();
     }
 
-    public static int getPort() {
-        try (ServerSocket socket = new ServerSocket(0)) {
-            return socket.getLocalPort();
-        } catch (IOException e) {
-            return -1;
-        }
-    }
-
     public static void errorDialog(Context context, String content) {
         TextView messageView = new TextView(context);
         messageView.setText(content);

@@ -9,7 +9,7 @@
         <item name="android:colorBackground">#101010</item>
         <item name="android:statusBarColor">#191919</item>
         
-        <item name="colorOnPrimaryContainer">?attr/android:textColor</item>
+        <item name="colorOnPrimaryContainer">?attr/android:textColorPrimary</item>
         <item name="android:navigationBarColor">?attr/android:colorBackground</item>
         <item name="colorOnSurface">?attr/android:textColor</item>
         <item name="colorOnSurfaceVariant">?attr/android:textColor</item>
