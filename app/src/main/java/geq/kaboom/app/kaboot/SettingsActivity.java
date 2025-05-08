@@ -2,12 +2,16 @@ package geq.kaboom.app.kaboot;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.ArrayList;
 
@@ -17,18 +21,22 @@ public class SettingsActivity extends AppCompatActivity {
         private SharedPreferences config;
         private SharedPreferences.Editor configEditor;
         private KabUtil util;
+        private MaterialToolbar toolbar;
         
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        toolbar = findViewById(R.id.toolbar);
         list = findViewById(R.id.list);
+        setSupportActionBar(toolbar);
         
         ArrayList<SettingItem> settings = new ArrayList<>();
         config = getSharedPreferences("Configuration", MODE_PRIVATE);
         configEditor = config.edit();
         util = new KabUtil(this);
         
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         list.setLayoutManager(new LinearLayoutManager(this));
         
         settings.add(new SettingItem("Terminal FontSize", "Define the default font size to be used in the terminal; it can be changed by resizing the screen.", ()->{
@@ -69,4 +77,13 @@ public class SettingsActivity extends AppCompatActivity {
         
         list.setAdapter(new SettingsAdapter(settings));
     }
+
+   @Override
+public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == android.R.id.home) {
+        finish();
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
+}
 }
