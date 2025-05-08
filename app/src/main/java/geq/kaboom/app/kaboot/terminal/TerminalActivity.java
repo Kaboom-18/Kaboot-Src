@@ -61,6 +61,7 @@ public final class TerminalActivity extends AppCompatActivity {
 
         ArrayList<String> cmd = new ArrayList<>();
         util.makeDir(getCacheDir().getAbsolutePath().concat("/shm"));
+        util.makeDir(getCacheDir().getAbsolutePath().concat("/tmp"));
         cmd.add(libdir.concat("/libkaboot.so"));
         cmd.add("--kill-on-exit");
         cmd.add("-w");
@@ -73,9 +74,10 @@ public final class TerminalActivity extends AppCompatActivity {
         cmd.add("/sys");
         cmd.add("-b");
         cmd.add(getCacheDir().getAbsolutePath().concat("/shm:/dev/shm"));
+        cmd.add("-b");
+        cmd.add(getCacheDir().getAbsolutePath().concat("/tmp:/tmp"));
         cmd.add("-r");
         cmd.add(getIntent().getStringExtra("pkgPath").concat("/rootfs"));
-
         try {
             JSONObject obj = new JSONObject(getIntent().getStringExtra("config"));
             if (obj.has("args")) {
