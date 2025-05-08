@@ -53,7 +53,13 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         String packageName = Uri.parse(packagePath).getLastPathSegment();
 
         holder.name.setText(packageName);
-        holder.size.setText(item.get("size").toString());
+        if(item.containsKey("size")){
+         holder.size.setVisibility(View.VISIBLE);
+         holder.size.setText(item.get("size").toString());
+        }else{
+            holder.size.setVisibility(View.GONE);
+            holder.size.setText("");
+        }  
 
         Intent intent = new Intent(context, TerminalActivity.class);
         intent.putExtra("pkgPath", packagePath);

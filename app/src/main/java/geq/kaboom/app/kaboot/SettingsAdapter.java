@@ -26,7 +26,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
         SettingItem item = settings.get(position);
         holder.title.setText(item.title);
         holder.description.setText(item.description);
-        holder.itemView.setOnClickListener((v)->{if (item.clicked != null) item.clicked.onClick(); });
+        holder.itemView.setOnClickListener((v)->{if (item.clicked != null) item.clicked.onClick(holder.title, holder.description); });
     }
 
     @Override

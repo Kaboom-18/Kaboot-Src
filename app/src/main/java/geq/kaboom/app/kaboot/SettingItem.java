@@ -1,4 +1,6 @@
 package geq.kaboom.app.kaboot;
+
+import android.widget.TextView;
     
 public class SettingItem {
     public int iconResId;
@@ -7,7 +9,7 @@ public class SettingItem {
     public itemClicked clicked;
     
     interface itemClicked{
-        void onClick();
+        void onClick(TextView title, TextView desc);
     }
     public SettingItem(String title, String description, itemClicked clicked) {
         this.title = title;

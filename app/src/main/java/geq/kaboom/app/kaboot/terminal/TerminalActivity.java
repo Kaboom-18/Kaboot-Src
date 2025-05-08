@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -16,15 +17,14 @@ import geq.kaboom.app.kaboot.terminal.termlib.TerminalSession;
 import geq.kaboom.app.kaboot.terminal.termview.TerminalView;
 import geq.kaboom.app.kaboot.terminal.termview.ExtraKeysView;
 import geq.kaboom.app.kaboot.R;
+import geq.kaboom.app.kaboot.Config;
 import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public final class TerminalActivity extends AppCompatActivity {
 
-    private final int MAX_FONTSIZE = 256;
-    private final float FSCALE = 15f;
-    private int MIN_FONTSIZE;
+    private int minFontSize;
     private int currentFontSize = -1;
     private MaterialToolbar toolbar;
     private boolean mVirtualControlKeyDown, mVirtualFnKeyDown;
@@ -43,6 +43,7 @@ public final class TerminalActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(getIntent().getStringExtra("name"));
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mTerminalView = findViewById(R.id.terminal_view);
         mExtraKeysView = findViewById(R.id.extra_keys);
@@ -150,15 +151,15 @@ public final class TerminalActivity extends AppCompatActivity {
 
     private void setupTerminalStyle() {
         float scale = getResources().getDisplayMetrics().scaledDensity;
-        int defaultFontSize = Math.round(FSCALE * scale);
+        int defaultFontSize = Math.round(Config.FSCALE * scale);
         if (defaultFontSize % 2 == 1) defaultFontSize--;
 
         if (currentFontSize == -1) {
             currentFontSize = defaultFontSize;
         }
 
-        MIN_FONTSIZE = (int) ((FSCALE - 2) * scale);
-        currentFontSize = Math.max(MIN_FONTSIZE, Math.min(currentFontSize, MAX_FONTSIZE));
+        minFontSize = (int) ((Config.FSCALE - 2) * scale);
+        currentFontSize = Math.max(minFontSize, Math.min(currentFontSize, Config.MAX_FONTSIZE));
         mTerminalView.setTextSize(currentFontSize);
 
         try {
@@ -178,13 +179,11 @@ public final class TerminalActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mTermSession != null) {
-            mTermSession.finishIfRunning();
-        }
+        if (mTermSession != null) mTermSession.finishIfRunning();
     }
 
     public void onBack() {
-        util.toast("Consider terminating the session manually!");
+      
     }
 
     public void doPaste() {
@@ -205,7 +204,17 @@ public final class TerminalActivity extends AppCompatActivity {
 
     public void changeFontSize(boolean increase) {
         currentFontSize += (increase ? 2 : -2);
-        currentFontSize = Math.max(MIN_FONTSIZE, Math.min(currentFontSize, MAX_FONTSIZE));
+        currentFontSize = Math.max(minFontSize, Math.min(currentFontSize, Config.MAX_FONTSIZE));
         mTerminalView.setTextSize(currentFontSize);
     }
+
+   @Override
+public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == android.R.id.home) {
+          if(mTermSession != null) mTermSession.finishIfRunning();
+          util.toast("Terminated!");
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
+}
 }

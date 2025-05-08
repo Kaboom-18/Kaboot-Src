@@ -39,7 +39,34 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         list.setLayoutManager(new LinearLayoutManager(this));
         
-        settings.add(new SettingItem("Terminal FontSize", "Define the default font size to be used in the terminal; it can be changed by resizing the screen.", ()->{
+        settings.add(new SettingItem("Custom Packages Repository", "Define the URL of the custom repository from which the packages will be fetched.", (t,d) -> {
+        final EditText input = new EditText(this);
+        input.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ));
+        input.setText(config.getString("repo", ""));
+        input.setHint("Enter custom repo url");
+        LinearLayout container = new LinearLayout(this);
+        container.setPadding(36,8,36,8);
+        container.addView(input);
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Custom Package repository")
+                .setMessage("(Do not enter anything unless you know what you're doing!)")
+                .setView(container)
+                .setPositiveButton("OK", (dialog, which) -> configEditor.putString("repo", input.getText().toString().trim()).apply())
+                .setNegativeButton("Reset", (dialog, which) -> configEditor.remove("repo").apply())
+                .show();
+        }));
+        
+        settings.add(new SettingItem(config.getBoolean("size", false)?"Hide package size":"Show package size", "Specify whether the package should display its size. Showing size may increase loading time.", (t,d) -> {
+             boolean dat = config.getBoolean("size", false)?false:true;
+             configEditor.putBoolean("size", dat).apply();
+             util.toast(dat?"Packaze Size Shown!":"Package Size Hidden!");
+             t.setText(dat?"Hide package size":"Show package size");
+        }));
+        
+        settings.add(new SettingItem("Terminal FontSize", "Define the default font size to be used in the terminal; it can be changed by resizing the screen.", (t,d)->{
         final EditText input = new EditText(this);
         input.setLayoutParams(new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -55,11 +82,11 @@ public class SettingsActivity extends AppCompatActivity {
                 .setTitle("Font Size")
                 .setView(container)
                 .setPositiveButton("OK", (dialog, which) -> configEditor.putInt("fontSize", Integer.parseInt(input.getText().toString().trim())).apply())
-                .setNegativeButton("Reset", (dialog, which) -> configEditor.putInt("fontSize", -1).apply())
+                .setNegativeButton("Reset", (dialog, which) -> configEditor.remove("fontSize").apply())
                 .show();
         }));
         
-        settings.add(new SettingItem("Clear Cache", "Clears application cache, temporary files and package cache.", ()->{
+        settings.add(new SettingItem("Clear Cache", "Clears application cache, temporary files and package cache.", (t,d)->{
             try{
             util.deleteFile(getCacheDir().getAbsolutePath());
             util.toast("Cache cleared!");
@@ -68,10 +95,10 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }));
         
-        settings.add(new SettingItem("About us", "More about this application.", ()->{
+        settings.add(new SettingItem("About us", "More about this application.", (t,d)->{
             new MaterialAlertDialogBuilder(this)
             .setTitle("About Us")
-            .setMessage(getString(R.string.aboutus))
+            .setMessage(Config.ABOUTUS)
             .show();
         }));
         

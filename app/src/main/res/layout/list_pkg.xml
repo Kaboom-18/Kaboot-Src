@@ -41,6 +41,7 @@
              android:textSize="10sp"
              android:focusable="false"
              android:id="@+id/size"
+             android:visibility="gone"
              android:textStyle="bold" />
 </LinearLayout>
 

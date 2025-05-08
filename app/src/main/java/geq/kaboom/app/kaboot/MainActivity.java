@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private MaterialToolbar toolbar;
     private ListAdapter adapter;
     private KabUtil util;
+    private SharedPreferences config;
    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         PATH = new File(getFilesDir(), "Packages");
         adapter = new ListAdapter(data);
         util = new KabUtil(this);
+        config = getSharedPreferences("Configuration", MODE_PRIVATE);
         
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(adapter);
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         indata.clear();
         new Thread(() -> {
             try {
-                JSONArray resp = new JSONArray(util.fetch(getString(R.string.repo)));
+                JSONArray resp = new JSONArray(util.fetch(config.getString("repo", Config.REPOURL)));
 
                 for (int i = 0; i < resp.length(); i++) {
                     JSONObject pkg = resp.getJSONObject(i);
@@ -135,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         if (file.isDirectory() && !file.getName().startsWith(".")) {
                             HashMap<String, Object> fileData = new HashMap<>();
                             fileData.put("path", file.getAbsolutePath());
-                            fileData.put("size", util.getFolderSize(file));
+                            if(config.getBoolean("size", false))fileData.put("size", util.getFolderSize(file));
                             tempData.add(fileData);
                         }
                     }
@@ -189,6 +191,12 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> util.toast("Couldn't fetch processes"));
             }
         }).start();
+    }
+    
+    @Override
+    public void onResume(){
+        super.onResume();
+        refresh();
     }
 
     @Override
