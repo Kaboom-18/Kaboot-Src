@@ -33,6 +33,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
     private final AlertDialog dialog;
     private Context context;
     private boolean installing = false;
+    private KabUtil util;
 
     public InstallAdapter(AlertDialog dialog, ArrayList<HashMap<String, Object>> dataList) {
         this.dialog = dialog;
@@ -43,6 +44,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
+        util = new KabUtil(context);
         View view = LayoutInflater.from(context).inflate(R.layout.install_pkg, parent, false);
         return new ViewHolder(view);
     }
@@ -62,7 +64,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
                 installer(holder, url, context.getCacheDir().getAbsolutePath(),
                         context.getFilesDir().getAbsolutePath() + "/Packages/" + name);
             } else {
-                KabUtil.toast(context, "Unsupported arch!");
+                util.toast("Unsupported arch!");
             }
         });
     }
@@ -125,13 +127,13 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
                 output.close();
 
                 handler.post(() -> {
-                    KabUtil.toast(context, "Download completed!");
+                    util.toast("Download completed!");
                     holder.prog.setVisibility(View.GONE);
                     holder.log.setVisibility(View.VISIBLE);
                 });
 
-                KabUtil.deleteFile(pkgPath);
-                KabUtil.makeDir(pkgPath);
+                util.deleteFile(pkgPath);
+                util.makeDir(pkgPath);
 
                 ArrayList<String> command = new ArrayList<>();
                 command.add(context.getApplicationInfo().nativeLibraryDir + "/libkaboot.so");
@@ -159,18 +161,18 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
                 proc.waitFor();
                 reader.close();
 
-                KabUtil.deleteFile(archiveFile.getAbsolutePath());
+                util.deleteFile(archiveFile.getAbsolutePath());
 
                 handler.post(() -> {
                     installing = false;
-                    KabUtil.toast(context, "Extraction completed!");
+                    util.toast("Extraction completed!");
                     dialog.dismiss();
                 });
 
             } catch (Exception e) {
                 handler.post(() -> {
                     installing = false;
-                    KabUtil.toast(context, "Installation failed!");
+                    util.toast("Installation failed!");
                     dialog.dismiss();
                 });
             } finally {

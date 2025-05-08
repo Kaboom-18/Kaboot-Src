@@ -16,11 +16,17 @@ import java.util.HashMap;
 
 public class KabUtil {
 
-    public static void toast(Context context, String msg) {
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+ private Context context;
+
+    public KabUtil(Context context){
+        this.context = context;
     }
 
-    public static String fetch(String urlString) throws IOException {
+    public void toast(String msg) {
+        Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+    }
+
+    public String fetch(String urlString) throws IOException {
         StringBuilder content = new StringBuilder();
         HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection();
         connection.setRequestMethod("GET");
@@ -43,22 +49,22 @@ public class KabUtil {
         return content.toString();
     }
 
-    public static void deleteFile(String path) throws IOException, InterruptedException {
+    public void deleteFile(String path) throws IOException, InterruptedException {
         new ProcessBuilder("rm", "-rf", path).start().waitFor();
     }
 
-    public static void makeDir(String path) {
+    public void makeDir(String path) {
         File file = new File(path);
         if (!file.exists()) {
             file.mkdirs();
         }
     }
 
-    public static boolean isExistFile(String path) {
+    public boolean isExistFile(String path) {
         return new File(path).exists();
     }
 
-    private static void createNewFile(String path) throws IOException {
+    private void createNewFile(String path) throws IOException {
         File file = new File(path);
         File parent = file.getParentFile();
         if (parent != null && !parent.exists()) {
@@ -70,14 +76,14 @@ public class KabUtil {
         }
     }
 
-    public static void writeFile(String path, String content) throws IOException {
+    public void writeFile(String path, String content) throws IOException {
         createNewFile(path);
         try (FileWriter writer = new FileWriter(path, false)) {
             writer.write(content);
         }
     }
 
-    public static String readFile(String path) throws IOException {
+    public String readFile(String path) throws IOException {
         createNewFile(path);
         StringBuilder sb = new StringBuilder();
 
@@ -92,7 +98,7 @@ public class KabUtil {
         return sb.toString().trim();
     }
 
-    public static ArrayList<HashMap<String, String>> getProcesses() throws IOException, InterruptedException {
+    public ArrayList<HashMap<String, String>> getProcesses() throws IOException, InterruptedException {
         ArrayList<HashMap<String, String>> processList = new ArrayList<>();
         Process process = new ProcessBuilder("ps", "-eo", "pid,comm").start();
 
@@ -114,11 +120,11 @@ public class KabUtil {
         return processList;
     }
 
-    public static void killProcess(int pid) throws IOException, InterruptedException {
+    public void killProcess(int pid) throws IOException, InterruptedException {
         new ProcessBuilder("kill", "-9", String.valueOf(pid)).start().waitFor();
     }
 
-    public static void errorDialog(Context context, String content) {
+    public void errorDialog(String content) {
         TextView messageView = new TextView(context);
         messageView.setText(content);
         new MaterialAlertDialogBuilder(context)
@@ -128,7 +134,7 @@ public class KabUtil {
                 .show();
     }
 
-    public static String getFolderSize(File file) {
+    public String getFolderSize(File file) {
         long size = calculateSize(file);
         String[] units = {"B", "KB", "MB", "GB", "TB"};
         int index = 0;
@@ -142,7 +148,7 @@ public class KabUtil {
         return String.format("%.1f%s", adjusted, units[index]);
     }
 
-    private static long calculateSize(File file) {
+    public long calculateSize(File file) {
         if (Files.isSymbolicLink(file.toPath())) return 0;
         if (file.isFile()) return file.length();
 

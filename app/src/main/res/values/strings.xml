@@ -7,4 +7,5 @@
 
     <string name="app_name">Kaboot</string>
     <string name="repo">https://raw.githubusercontent.com/Kaboom-18/Kaboot/refs/heads/main/Packages.json</string>
+    <string name="aboutus">Kaboot is a robust Linux emulation application developed by Kaboom, enabling a full Linux environment on Android devices—no root access required. It supports the latest Android versions and is specifically engineered to bypass W^X (Write XOR Execute) restrictions, ensuring maximum compatibility and stability.\n\nCredits\nWe extend our sincere appreciation to the projects and libraries that have contributed to the development of Kaboot:\n\n• Termux – for the TerminalView integration; updated and modified to work in Kaboot\n• Proot – extensively updated and modified for enhanced flexibility, compatibility, and to operate under W^X restrictions. The updated version is included as libKaboot\n• libTalloc – a key dependency used within libKaboot</string>
 </resources>

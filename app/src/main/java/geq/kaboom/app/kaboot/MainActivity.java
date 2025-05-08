@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout base;
     private MaterialToolbar toolbar;
     private ListAdapter adapter;
+    private KabUtil util;
    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
 
         PATH = new File(getFilesDir(), "Packages");
         adapter = new ListAdapter(data);
+        util = new KabUtil(this);
+        
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(adapter);
 
@@ -93,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         indata.clear();
         new Thread(() -> {
             try {
-                JSONArray resp = new JSONArray(KabUtil.fetch(getString(R.string.repo)));
+                JSONArray resp = new JSONArray(util.fetch(getString(R.string.repo)));
 
                 for (int i = 0; i < resp.length(); i++) {
                     JSONObject pkg = resp.getJSONObject(i);
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> install.setVisibility(View.VISIBLE));
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    KabUtil.toast(MainActivity.this, "Couldn't connect to repository");
+                    util.toast("Couldn't connect to repository");
                     install.setVisibility(View.GONE);
                 });
             }
@@ -132,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                         if (file.isDirectory() && !file.getName().startsWith(".")) {
                             HashMap<String, Object> fileData = new HashMap<>();
                             fileData.put("path", file.getAbsolutePath());
-                            fileData.put("size", KabUtil.getFolderSize(file));
+                            fileData.put("size", util.getFolderSize(file));
                             tempData.add(fileData);
                         }
                     }
@@ -140,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 if (!PATH.mkdir()) {
                     runOnUiThread(() -> {
-                        KabUtil.toast(MainActivity.this, "I/O error occurred!");
+                        util.toast("I/O error occurred!");
                         finish();
                     });
                     return;
@@ -162,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<HashMap<String, String>> processes;
 
             try {
-                processes = KabUtil.getProcesses();
+                processes = util.getProcesses();
                 for (HashMap<String, String> process : processes) {
                     names.add(process.get("name"));
                 }
@@ -174,18 +177,16 @@ public class MainActivity extends AppCompatActivity {
                                 int pid = Integer.parseInt(processes.get(which).get("pid"));
                                 String name = processes.get(which).get("name");
 
-                                KabUtil.killProcess(pid);
-                                KabUtil.toast(MainActivity.this,
-                                        "Process [" + name + "] with pid [" + pid + "] killed successfully!");
+                                util.killProcess(pid);
+                                util.toast("Process [" + name + "] with pid [" + pid + "] killed successfully!");
                             } catch (Exception e) {
-                                KabUtil.toast(MainActivity.this,
-                                        "Failed to kill [" + processes.get(which).get("name")
+                                util.toast("Failed to kill [" + processes.get(which).get("name")
                                                 + "] with pid [" + processes.get(which).get("pid") + "]");
                             }
                         }).show());
 
             } catch (Exception e) {
-                runOnUiThread(() -> KabUtil.toast(MainActivity.this, "Couldn't fetch processes"));
+                runOnUiThread(() -> util.toast("Couldn't fetch processes"));
             }
         }).start();
     }

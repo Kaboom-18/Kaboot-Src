@@ -25,6 +25,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
     private final ArrayList<HashMap<String, Object>> data;
     private Context context;
+    private KabUtil util;
 
     public ListAdapter(ArrayList<HashMap<String, Object>> initialData) {
         this.data = new ArrayList<>(initialData);
@@ -40,6 +41,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
+        util = new KabUtil(context);
         View view = LayoutInflater.from(context).inflate(R.layout.list_pkg, parent, false);
         return new ViewHolder(view);
     }
@@ -58,7 +60,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         intent.putExtra("name", packageName);
 
         try {
-            String configContent = KabUtil.readFile(packagePath + "/config.json");
+            String configContent = util.readFile(packagePath + "/config.json");
             intent.putExtra("config", configContent);
             holder.icon.setVisibility(View.VISIBLE);
         } catch (Exception e) {
@@ -85,13 +87,13 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
     private void deletePackage(String packagePath, int pos) {
         try {
-            KabUtil.deleteFile(packagePath);
+            util.deleteFile(packagePath);
             data.remove(pos);
             notifyItemRemoved(pos);
             notifyItemRangeChanged(pos, data.size());
-            KabUtil.toast(context, "Package deleted!");
+            util.toast("Package deleted!");
         } catch (Exception e) {
-            KabUtil.toast(context, "Couldn't delete this package!");
+            util.toast("Couldn't delete this package!");
         }
     }
 

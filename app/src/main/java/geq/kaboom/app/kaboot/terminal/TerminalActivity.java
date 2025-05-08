@@ -29,6 +29,7 @@ public final class TerminalActivity extends AppCompatActivity {
     private MaterialToolbar toolbar;
     private boolean mVirtualControlKeyDown, mVirtualFnKeyDown;
     private SharedPreferences config;
+    private KabUtil util;
 
     TerminalView mTerminalView;
     ExtraKeysView mExtraKeysView;
@@ -51,12 +52,14 @@ public final class TerminalActivity extends AppCompatActivity {
 
         config = getSharedPreferences("Configuration", MODE_PRIVATE);
         currentFontSize = config.getInt("fontSize", -1);
+        
+        util = new KabUtil(this);
 
         String libdir = getApplicationInfo().nativeLibraryDir;
         setupTerminalStyle();
 
         ArrayList<String> cmd = new ArrayList<>();
-        KabUtil.makeDir(getCacheDir().getAbsolutePath().concat("/shm"));
+        util.makeDir(getCacheDir().getAbsolutePath().concat("/shm"));
         cmd.add(libdir.concat("/libkaboot.so"));
         cmd.add("--kill-on-exit");
         cmd.add("-w");
@@ -101,7 +104,7 @@ public final class TerminalActivity extends AppCompatActivity {
                 }
             }
         } catch (Exception e) {
-            KabUtil.toast(this, "Couldn't initialize the package");
+            util.toast("Couldn't initialize the package");
             finish();
         }
 
@@ -181,7 +184,7 @@ public final class TerminalActivity extends AppCompatActivity {
     }
 
     public void onBack() {
-        KabUtil.toast(this, "Consider terminating the session manually!");
+        util.toast("Consider terminating the session manually!");
     }
 
     public void doPaste() {

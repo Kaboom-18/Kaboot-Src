@@ -16,6 +16,7 @@ public class SettingsActivity extends AppCompatActivity {
         private RecyclerView list;
         private SharedPreferences config;
         private SharedPreferences.Editor configEditor;
+        private KabUtil util;
         
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +27,7 @@ public class SettingsActivity extends AppCompatActivity {
         ArrayList<SettingItem> settings = new ArrayList<>();
         config = getSharedPreferences("Configuration", MODE_PRIVATE);
         configEditor = config.edit();
+        util = new KabUtil(this);
         
         list.setLayoutManager(new LinearLayoutManager(this));
         
@@ -48,6 +50,23 @@ public class SettingsActivity extends AppCompatActivity {
                 .setNegativeButton("Reset", (dialog, which) -> configEditor.putInt("fontSize", -1).apply())
                 .show();
         }));
+        
+        settings.add(new SettingItem("Clear Cache", "Clears application cache, temporary files and package cache.", ()->{
+            try{
+            util.deleteFile(getCacheDir().getAbsolutePath());
+            util.toast("Cache cleared!");
+            }catch(Exception e){
+                util.toast("Failed to clear cache : "+e.toString());
+            }
+        }));
+        
+        settings.add(new SettingItem("About us", "More about this application.", ()->{
+            new MaterialAlertDialogBuilder(this)
+            .setTitle("About Us")
+            .setMessage(getString(R.string.aboutus))
+            .show();
+        }));
+        
         list.setAdapter(new SettingsAdapter(settings));
     }
 }
