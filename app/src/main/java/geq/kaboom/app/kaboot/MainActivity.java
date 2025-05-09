@@ -116,15 +116,20 @@ public class MainActivity extends AppCompatActivity {
     private void fetchPackages() {
         indata.clear();
         new Thread(() -> {
+            String content;
+            if((content = util.fetch(config.getString("repo", Config.REPOURL))) != null){
             try {
-                JSONArray resp = new JSONArray(util.fetch(config.getString("repo", Config.REPOURL)));
+                JSONArray resp = new JSONArray(content);
 
                 for (int i = 0; i < resp.length(); i++) {
+                   HashMap<String, Object> p = new HashMap<>();
+                    
                     JSONObject pkg = resp.getJSONObject(i);
                     JSONObject url = pkg.getJSONObject("url");
                     
-                    HashMap<String, Object> p = new HashMap<>();
                     p.put("name", pkg.getString("name"));
+                    p.put("desc", pkg.getString("description"));
+                    
                     for(String arc : Build.SUPPORTED_ABIS){
                     if(url.has(arc)){
                         p.put("url", url.getString(arc));
@@ -137,7 +142,13 @@ public class MainActivity extends AppCompatActivity {
                 Config.UI.post(() -> install.setVisibility(View.VISIBLE));
             } catch (Exception e) {
                 Config.UI.post(() -> {
-                    util.toast("Couldn't connect to repository");
+                    util.toast("Repository is badly formatted!");
+                    install.setVisibility(View.GONE);
+                });
+            }
+            }else{
+               Config.UI.post(() -> {
+                    util.toast("Couldn't connect to repository!");
                     install.setVisibility(View.GONE);
                 });
             }

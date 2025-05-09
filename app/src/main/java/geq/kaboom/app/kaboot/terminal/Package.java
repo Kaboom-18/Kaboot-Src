@@ -49,7 +49,7 @@ public class Package {
       cmd.add("-b");
       cmd.add("/sys");
       cmd.add("-b");
-      util.resetFolder(Config.getPkgTmpDir(context, name)+"/shm");
+      util.resetFile(Config.getPkgTmpDir(context, name)+"/shm");
       cmd.add(Config.getPkgTmpDir(context, name)+"/shm:/dev/shm");
       cmd.add("-b");
       util.makeDir(Config.getPkgTmpDir(context, name)+"/tmp");

@@ -38,6 +38,12 @@
                 android:id="@+id/name"
                 android:text="Name"
                 android:textStyle="bold" />
+                
+               <ImageView
+                android:layout_height="30dp"
+                android:layout_width="30dp"
+                android:id="@+id/desc"
+                android:src="@drawable/ic_desc" /> 
         </LinearLayout>
 
         <LinearLayout

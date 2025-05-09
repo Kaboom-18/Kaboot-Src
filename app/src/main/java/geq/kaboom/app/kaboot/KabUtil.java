@@ -27,7 +27,9 @@ public class KabUtil {
     Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
   }
 
-  public String fetch(String urlString) throws IOException {
+  public String fetch(String urlString) {
+      String result = null;
+      try{
     StringBuilder content = new StringBuilder();
     HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection();
     connection.setRequestMethod("GET");
@@ -38,17 +40,18 @@ public class KabUtil {
       throw new IOException("HTTP request failed with code: " + responseCode);
     }
 
-    try (BufferedReader in =
-        new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
         content.append(inputLine);
       }
-    } finally {
+      in.close();
       connection.disconnect();
+      result = content.toString();
+    }catch(Exception e){
+        return null;
     }
-
-    return content.toString();
+    return result;
   }
 
   public boolean deleteFile(String path) {
@@ -89,6 +92,11 @@ public class KabUtil {
   public void resetFolder(String path) {
     deleteFile(path);
     makeDir(path);
+  }
+    
+  public void resetFile(String path){
+      deleteFile(path);
+      createNewFile(path);
   }
     
   public String getLastPath(String path){
@@ -155,8 +163,8 @@ public class KabUtil {
     }
   }
 
-  public void showDialog(String content) {
-    new MaterialAlertDialogBuilder(context).setTitle("Error").setMessage(content).show();
+  public void showDialog(String title, String content) {
+    new MaterialAlertDialogBuilder(context).setTitle(title).setMessage(content).show();
   }
 
   public String getFolderSize(File file) {

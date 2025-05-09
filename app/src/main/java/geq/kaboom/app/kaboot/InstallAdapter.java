@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -52,19 +53,21 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int pos) {
         HashMap<String, Object> item = data.get(pos);
-        String name = item.get("name").toString();
+        final String name = item.get("name").toString();
         holder.name.setText(name);
 
-        holder.name.setOnClickListener(v -> {
+        holder.name.setOnClickListener((v) -> {
             if (installing) return;
             String url = item.get("url") != null ? item.get("url").toString() : null;
             if (url != null) {
                 installing = true;
-                installer(holder, url, Config.getTmpDir(context), Config.getFilesDir(context) + "/Packages/" + name);
+                installer(holder, url, Config.getTmpDir(context), Config.getPkgDir(context, name));
             } else {
                 util.toast("Unsupported arch!");
             }
         });
+        
+        holder.desc.setOnClickListener((v)-> util.showDialog(name+" Description", item.get("desc").toString()));
     }
 
     @Override
@@ -74,6 +77,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, log;
+        ImageView desc;
         LinearProgressIndicator prog;
 
         public ViewHolder(View v) {
@@ -81,6 +85,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
             name = v.findViewById(R.id.name);
             prog = v.findViewById(R.id.prog);
             log = v.findViewById(R.id.log);
+            desc = v.findViewById(R.id.desc);
         }
     }
 

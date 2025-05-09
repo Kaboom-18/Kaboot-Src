@@ -103,12 +103,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }));
         
-        settings.add(new SettingItem("About us", "More about this application.", (t,d)->{
-            new MaterialAlertDialogBuilder(this)
-            .setTitle("About Us")
-            .setMessage(Config.ABOUTUS)
-            .show();
-        }));
+        settings.add(new SettingItem("About us", "More about this application.", (t,d)-> util.showDialog("About Us", Config.ABOUTUS)));
         
         list.setAdapter(new SettingsAdapter(settings));
     }
