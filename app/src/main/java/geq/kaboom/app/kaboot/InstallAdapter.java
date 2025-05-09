@@ -67,7 +67,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
             }
         });
         
-        holder.desc.setOnClickListener((v)-> util.showDialog(name+" Description", item.get("desc").toString()));
+        holder.desc.setOnClickListener((v)-> util.showDialog(name+" description", item.get("desc").toString()));
     }
 
     @Override
