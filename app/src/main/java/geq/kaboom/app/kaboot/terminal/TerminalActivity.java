@@ -30,10 +30,11 @@ public final class TerminalActivity extends AppCompatActivity {
     private boolean mVirtualControlKeyDown, mVirtualFnKeyDown;
     private SharedPreferences config;
     private KabUtil util;
+    private Package pkg;
+    private TerminalSession session;
 
     TerminalView mTerminalView;
     ExtraKeysView mExtraKeysView;
-    TerminalSession mTermSession;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -53,74 +54,12 @@ public final class TerminalActivity extends AppCompatActivity {
 
         config = getSharedPreferences("Configuration", MODE_PRIVATE);
         currentFontSize = config.getInt("fontSize", -1);
-        
         util = new KabUtil(this);
-
-        String libdir = getApplicationInfo().nativeLibraryDir;
+        
         setupTerminalStyle();
 
-        ArrayList<String> cmd = new ArrayList<>();
-        util.makeDir(getCacheDir().getAbsolutePath().concat("/shm"));
-        util.makeDir(getCacheDir().getAbsolutePath().concat("/tmp"));
-        cmd.add(libdir.concat("/libkaboot.so"));
-        cmd.add("--kill-on-exit");
-        cmd.add("-w");
-        cmd.add("/");
-        cmd.add("-b");
-        cmd.add("/dev");
-        cmd.add("-b");
-        cmd.add("/proc");
-        cmd.add("-b");
-        cmd.add("/sys");
-        cmd.add("-b");
-        cmd.add(getCacheDir().getAbsolutePath().concat("/shm:/dev/shm"));
-        cmd.add("-b");
-        cmd.add(getCacheDir().getAbsolutePath().concat("/tmp:/tmp"));
-        cmd.add("-r");
-        cmd.add(getIntent().getStringExtra("pkgPath").concat("/rootfs"));
-        try {
-            JSONObject obj = new JSONObject(getIntent().getStringExtra("config"));
-            if (obj.has("args")) {
-                JSONArray args = obj.getJSONArray("args");
-                for (int i = 0; i < args.length(); i++) {
-                    cmd.add(args.getString(i));
-                }
-            }
-            if (obj.has("variables")) {
-                JSONArray variables = obj.getJSONArray("variables");
-                for (int i = 0; i < variables.length(); i++) {
-                    if (variables.getString(i).startsWith("HOME")) {
-                        cmd.add("-w");
-                        cmd.add(variables.getString(i).split("=")[1]);
-                    }
-                }
-                cmd.add(obj.getString("env"));
-                cmd.add("-i");
-                for (int i = 0; i < variables.length(); i++) {
-                    cmd.add(variables.getString(i));
-                }
-            }
-            if (obj.has("cmd")) {
-                JSONArray commands = obj.getJSONArray("cmd");
-                for (int i = 0; i < commands.length(); i++) {
-                    cmd.add(commands.getString(i));
-                }
-            }
-        } catch (Exception e) {
-            util.toast("Couldn't initialize the package");
-            finish();
-        }
-
-        mTermSession = new TerminalSession(
-                cmd.toArray(new String[0]),
-                new String[]{
-                        "LD_LIBRARY_PATH=" + libdir,
-                        "PROOT_LOADER=" + libdir + "/libkabooter.so",
-                        "PROOT_LOADER_32=" + libdir + "/libkabooter32.so",
-                        "PROOT_TMP_DIR=" + getCacheDir().getAbsolutePath()
-                },
-                getCacheDir().getAbsolutePath(),
-                new TerminalSession.SessionChangedCallback() {
+        pkg = new Package(this, getIntent().getStringExtra("name"), getIntent().getStringExtra("pkgPath"), getIntent().getStringExtra("config"),
+            new TerminalSession.SessionChangedCallback() {
                     @Override
                     public void onSessionFinished(TerminalSession finishedSession) {
                         finish();
@@ -143,12 +82,18 @@ public final class TerminalActivity extends AppCompatActivity {
                                             new ClipData.Item(text)));
                         }
                     }
-
+                    
                     @Override
                     public void onBell(TerminalSession session) {}
                 });
 
-        mTerminalView.attachSession(mTermSession);
+       try{
+        session = pkg.getTerminalSession();
+        }catch(Exception e){
+            util.toast("Couldn't initialize this package!");
+            finish();
+        }
+        mTerminalView.attachSession(session);
     }
 
     private void setupTerminalStyle() {
@@ -181,7 +126,7 @@ public final class TerminalActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mTermSession != null) mTermSession.finishIfRunning();
+        if (session != null) session.finishIfRunning();
     }
 
     public void onBack() {
@@ -213,7 +158,7 @@ public final class TerminalActivity extends AppCompatActivity {
    @Override
 public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == android.R.id.home) {
-          if(mTermSession != null) mTermSession.finishIfRunning();
+          if(session != null) session.finishIfRunning();
           util.toast("Terminated!");
         return true;
     }

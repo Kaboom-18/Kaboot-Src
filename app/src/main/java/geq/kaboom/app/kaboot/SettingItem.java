@@ -1,7 +1,6 @@
 package geq.kaboom.app.kaboot;
-
 import android.widget.TextView;
-    
+
 public class SettingItem {
     public int iconResId;
     public String title;

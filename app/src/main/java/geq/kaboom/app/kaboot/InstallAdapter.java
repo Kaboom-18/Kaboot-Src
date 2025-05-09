@@ -56,15 +56,14 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
         holder.name.setText(name);
 
         holder.name.setOnClickListener(v -> {
-            if (installing) return;
-
+            if (!installing){
             String url = item.get("url") != null ? item.get("url").toString() : null;
             if (url != null) {
                 installing = true;
-                installer(holder, url, context.getCacheDir().getAbsolutePath(),
-                        context.getFilesDir().getAbsolutePath() + "/Packages/" + name);
+                installer(holder, url, Config.getTmpDir(context), Config.getFilesDir(context) + "/Packages/" + name);
             } else {
                 util.toast("Unsupported arch!");
+            }
             }
         });
     }
@@ -92,8 +91,6 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
         holder.download.setVisibility(View.VISIBLE);
         dialog.setCancelable(false);
 
-        Handler handler = new Handler(Looper.getMainLooper());
-
         new Thread(() -> {
             InputStream input = null;
             FileOutputStream output = null;
@@ -119,15 +116,16 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
                 while ((count = input.read(buffer)) != -1) {
                     total += count;
                     int progress = (int) (total * 100 / fileLength);
-                    handler.post(() -> holder.prog.setProgress(progress));
+                    Config.UI.post(() -> holder.prog.setProgress(progress));
                     output.write(buffer, 0, count);
                 }
 
                 input.close();
                 output.close();
 
-                handler.post(() -> {
+                Config.UI.post(() -> {
                     util.toast("Download completed!");
+                    Config.installed = true;
                     holder.prog.setVisibility(View.GONE);
                     holder.log.setVisibility(View.VISIBLE);
                 });
@@ -136,7 +134,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
                 util.makeDir(pkgPath);
 
                 ArrayList<String> command = new ArrayList<>();
-                command.add(context.getApplicationInfo().nativeLibraryDir + "/libkaboot.so");
+                command.add(Config.getKaboot(context));
                 command.add("-l");
                 command.add("tar");
                 command.add("-xvzf");
@@ -145,32 +143,34 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
                 command.add(pkgPath);
 
                 ProcessBuilder pb = new ProcessBuilder(command);
-                pb.environment().put("LD_LIBRARY_PATH", context.getApplicationInfo().nativeLibraryDir);
-                pb.environment().put("PROOT_LOADER", context.getApplicationInfo().nativeLibraryDir + "/libkabooter.so");
-                pb.environment().put("PROOT_LOADER_32", context.getApplicationInfo().nativeLibraryDir + "/libkabooter32.so");
+                
+                for(String va : Config.getKabootVars(context)){
+                    String[] ar = va.split("=", 2);
+                    pb.environment().put(ar[0], ar[1]);
+                }
 
                 Process proc = pb.start();
                 proc.getErrorStream().close();
-
+                
                 BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String finalLine = line;
-                    handler.post(() -> holder.log.setText(finalLine));
+                    Config.UI.post(() -> holder.log.setText(finalLine));
                 }
                 proc.waitFor();
                 reader.close();
 
                 util.deleteFile(archiveFile.getAbsolutePath());
 
-                handler.post(() -> {
+                Config.UI.post(() -> {
                     installing = false;
-                    util.toast("Extraction completed!");
+                    util.toast("Installation completed!");
                     dialog.dismiss();
                 });
 
             } catch (Exception e) {
-                handler.post(() -> {
+                Config.UI.post(() -> {
                     installing = false;
                     util.toast("Installation failed!");
                     dialog.dismiss();

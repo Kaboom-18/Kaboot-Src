@@ -10,6 +10,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private File PATH;
     private final ArrayList<HashMap<String, Object>> data = new ArrayList<>();
     private final ArrayList<HashMap<String, Object>> indata = new ArrayList<>();
+    private ActivityResultLauncher<Intent> resultLauncher;
     private RecyclerView list;
     private FloatingActionButton install;
     private SwipeRefreshLayout base;
@@ -74,6 +77,17 @@ public class MainActivity extends AppCompatActivity {
 
         install.setOnClickListener(v -> showInstallDialog());
 
+        resultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), (result) -> {
+            switch(result.getResultCode()){
+            case Config.REFRESH_CODE:
+             refresh();
+                break;
+            case Config.PKG_REFRESH_CODE:
+             fetchPackages();
+                break;
+            }
+            });
+            
         base.setOnRefreshListener(() -> refresh());
         
         refresh();
@@ -82,7 +96,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void showInstallDialog() {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        builder.setOnDismissListener(dialog -> refresh());
+        builder.setOnDismissListener(dialog -> {
+            if(Config.installed){
+            Config.installed = false;
+            refresh();
+            }
+        });
 
         RecyclerView installList = new RecyclerView(this);
         installList.setPadding(7, 14, 7, 14);
@@ -115,9 +134,9 @@ public class MainActivity extends AppCompatActivity {
                     indata.add(p);
                 }
 
-                runOnUiThread(() -> install.setVisibility(View.VISIBLE));
+                Config.UI.post(() -> install.setVisibility(View.VISIBLE));
             } catch (Exception e) {
-                runOnUiThread(() -> {
+                Config.UI.post(() -> {
                     util.toast("Couldn't connect to repository");
                     install.setVisibility(View.GONE);
                 });
@@ -144,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 if (!PATH.mkdir()) {
-                    runOnUiThread(() -> {
+                    Config.UI.post(() -> {
                         util.toast("I/O error occurred!");
                         finish();
                     });
@@ -152,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            runOnUiThread(() -> {
+            Config.UI.post(() -> {
                 data.clear();
                 data.addAll(tempData);
                 adapter.updateData(data);
@@ -172,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                     names.add(process.get("name"));
                 }
 
-                runOnUiThread(() -> new MaterialAlertDialogBuilder(this)
+                Config.UI.post(() -> new MaterialAlertDialogBuilder(this)
                         .setTitle("Kill a running process")
                         .setItems(names.toArray(new String[0]), (dialog, which) -> {
                             try {
@@ -188,15 +207,9 @@ public class MainActivity extends AppCompatActivity {
                         }).show());
 
             } catch (Exception e) {
-                runOnUiThread(() -> util.toast("Couldn't fetch processes"));
+                Config.UI.post(() -> util.toast("Couldn't fetch processes"));
             }
         }).start();
-    }
-    
-    @Override
-    public void onResume(){
-        super.onResume();
-        refresh();
     }
 
     @Override
@@ -212,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         if (item.getItemId() == R.id.settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
+            resultLauncher.launch(new Intent(this, SettingsActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

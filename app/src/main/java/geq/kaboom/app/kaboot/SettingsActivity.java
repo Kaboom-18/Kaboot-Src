@@ -22,6 +22,7 @@ public class SettingsActivity extends AppCompatActivity {
         private SharedPreferences.Editor configEditor;
         private KabUtil util;
         private MaterialToolbar toolbar;
+        private boolean update = false;
         
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +55,21 @@ public class SettingsActivity extends AppCompatActivity {
                 .setTitle("Custom Package repository")
                 .setMessage("(Do not enter anything unless you know what you're doing!)")
                 .setView(container)
-                .setPositiveButton("OK", (dialog, which) -> configEditor.putString("repo", input.getText().toString().trim()).apply())
-                .setNegativeButton("Reset", (dialog, which) -> configEditor.remove("repo").apply())
+                .setPositiveButton("OK", (dialog, which) -> {
+                    configEditor.putString("repo", input.getText().toString().trim()).apply();
+                    setResult(Config.PKG_REFRESH_CODE);
+                    })
+                .setNegativeButton("Reset", (dialog, which) -> {
+                    configEditor.remove("repo").apply();
+                    setResult(Config.PKG_REFRESH_CODE);
+                })
                 .show();
         }));
         
         settings.add(new SettingItem(config.getBoolean("size", false)?"Hide package size":"Show package size", "Specify whether the package should display its size. Showing size may increase loading time.", (t,d) -> {
              boolean dat = config.getBoolean("size", false)?false:true;
              configEditor.putBoolean("size", dat).apply();
+             setResult(Config.REFRESH_CODE);
              util.toast(dat?"Packaze Size Shown!":"Package Size Hidden!");
              t.setText(dat?"Hide package size":"Show package size");
         }));
@@ -86,12 +94,13 @@ public class SettingsActivity extends AppCompatActivity {
                 .show();
         }));
         
-        settings.add(new SettingItem("Clear Cache", "Clears application cache, temporary files and package cache.", (t,d)->{
+        settings.add(new SettingItem("Clear Tmp", "Clears application temporary files and package tmp directories.", (t,d)->{
             try{
-            util.deleteFile(getCacheDir().getAbsolutePath());
+            util.deleteFile(Config.getTmpDir(this));
+            setResult(Config.REFRESH_CODE);
             util.toast("Cache cleared!");
             }catch(Exception e){
-                util.toast("Failed to clear cache : "+e.toString());
+                util.toast("Failed to clear tmp : "+e.toString());
             }
         }));
         

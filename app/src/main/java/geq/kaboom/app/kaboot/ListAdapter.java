@@ -56,10 +56,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         if(item.containsKey("size")){
          holder.size.setVisibility(View.VISIBLE);
          holder.size.setText(item.get("size").toString());
-        }else{
-            holder.size.setVisibility(View.GONE);
-            holder.size.setText("");
-        }  
+        }else holder.size.setVisibility(View.GONE);
 
         Intent intent = new Intent(context, TerminalActivity.class);
         intent.putExtra("pkgPath", packagePath);
@@ -73,7 +70,6 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             holder.icon.setVisibility(View.GONE);
             holder.name.setText("Invalid Package!");
         }
-
         holder.icon.setOnClickListener(v -> context.startActivity(intent));
         holder.base.setOnLongClickListener(v -> {
             showDeleteDialog(packagePath, position);
@@ -82,7 +78,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     }
 
     private void showDeleteDialog(String packagePath, int pos) {
-        String packageName = new File(packagePath).getName();
+        String packageName = Uri.parse(packagePath).getLastPathSegment();
 
         new MaterialAlertDialogBuilder(context)
                 .setTitle("Delete " + packageName + " package?")
