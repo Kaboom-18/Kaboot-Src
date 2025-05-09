@@ -1,7 +1,7 @@
 package geq.kaboom.app.kaboot;
 
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -56,14 +56,13 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
         holder.name.setText(name);
 
         holder.name.setOnClickListener(v -> {
-            if (!installing){
+            if (installing) return;
             String url = item.get("url") != null ? item.get("url").toString() : null;
             if (url != null) {
                 installing = true;
                 installer(holder, url, Config.getTmpDir(context), Config.getFilesDir(context) + "/Packages/" + name);
             } else {
                 util.toast("Unsupported arch!");
-            }
             }
         });
     }
@@ -75,20 +74,27 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, log;
-        LinearLayout download;
         LinearProgressIndicator prog;
 
         public ViewHolder(View v) {
             super(v);
             name = v.findViewById(R.id.name);
-            download = v.findViewById(R.id.download);
             prog = v.findViewById(R.id.prog);
             log = v.findViewById(R.id.log);
         }
     }
 
     private void installer(ViewHolder holder, String url, String downloadPath, String pkgPath) {
-        holder.download.setVisibility(View.VISIBLE);
+        
+        if(util.isExistFile(pkgPath)){
+           holder.log.setVisibility(View.VISIBLE);
+           holder.log.setTextColor(Color.parseColor(Config.ERROR_COLOR));
+           holder.log.setText("A package with a similar name is already installed. Consider deleting it or renaming your package.");
+           return;
+        }
+        
+        holder.log.setLines(1);
+        holder.prog.setVisibility(View.VISIBLE);
         dialog.setCancelable(false);
 
         new Thread(() -> {
@@ -106,7 +112,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
                 }
 
                 int fileLength = connection.getContentLength();
-                File archiveFile = new File(downloadPath, Uri.parse(url).getLastPathSegment());
+                File archiveFile = new File(downloadPath, util.getLastPath(url));
                 input = new BufferedInputStream(connection.getInputStream());
                 output = new FileOutputStream(archiveFile);
 
@@ -115,7 +121,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
                 int count;
                 while ((count = input.read(buffer)) != -1) {
                     total += count;
-                    int progress = (int) (total * 100 / fileLength);
+                    final int progress = (int) (total * 100 / fileLength);
                     Config.UI.post(() -> holder.prog.setProgress(progress));
                     output.write(buffer, 0, count);
                 }
@@ -125,12 +131,11 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
 
                 Config.UI.post(() -> {
                     util.toast("Download completed!");
-                    Config.installed = true;
+                    Config.refreshList = true;
                     holder.prog.setVisibility(View.GONE);
                     holder.log.setVisibility(View.VISIBLE);
                 });
 
-                util.deleteFile(pkgPath);
                 util.makeDir(pkgPath);
 
                 ArrayList<String> command = new ArrayList<>();
@@ -148,16 +153,17 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
                     String[] ar = va.split("=", 2);
                     pb.environment().put(ar[0], ar[1]);
                 }
-
+                
                 Process proc = pb.start();
                 proc.getErrorStream().close();
                 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    String finalLine = line;
-                    Config.UI.post(() -> holder.log.setText(finalLine));
+                    final String finalStr = line;
+                    Config.UI.post(() -> holder.log.setText(finalStr));
                 }
+                
                 proc.waitFor();
                 reader.close();
 

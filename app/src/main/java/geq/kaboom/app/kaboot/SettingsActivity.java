@@ -95,12 +95,11 @@ public class SettingsActivity extends AppCompatActivity {
         }));
         
         settings.add(new SettingItem("Clear Tmp", "Clears application temporary files and package tmp directories.", (t,d)->{
-            try{
-            util.deleteFile(Config.getTmpDir(this));
+            if(util.deleteFile(Config.getTmpDir(this))){
             setResult(Config.REFRESH_CODE);
             util.toast("Cache cleared!");
-            }catch(Exception e){
-                util.toast("Failed to clear tmp : "+e.toString());
+            }else{
+                util.toast("Failed to clear tmp!");
             }
         }));
         

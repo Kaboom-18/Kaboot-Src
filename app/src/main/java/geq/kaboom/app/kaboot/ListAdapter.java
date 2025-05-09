@@ -2,10 +2,10 @@ package geq.kaboom.app.kaboot;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -50,8 +50,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         HashMap<String, Object> item = data.get(position);
         String packagePath = item.get("path").toString();
-        String packageName = Uri.parse(packagePath).getLastPathSegment();
-
+        String packageName = Config.getPkgName(context, packagePath);
+        
         holder.name.setText(packageName);
         if(item.containsKey("size")){
          holder.size.setVisibility(View.VISIBLE);
@@ -60,41 +60,61 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
         Intent intent = new Intent(context, TerminalActivity.class);
         intent.putExtra("pkgPath", packagePath);
-        intent.putExtra("name", packageName);
 
-        try {
-            String configContent = util.readFile(packagePath + "/config.json");
+        String configContent = util.readFile(packagePath + "/config.json");
+        if(configContent != null){
             intent.putExtra("config", configContent);
             holder.icon.setVisibility(View.VISIBLE);
-        } catch (Exception e) {
+        } else{
             holder.icon.setVisibility(View.GONE);
             holder.name.setText("Invalid Package!");
         }
         holder.icon.setOnClickListener(v -> context.startActivity(intent));
         holder.base.setOnLongClickListener(v -> {
-            showDeleteDialog(packagePath, position);
+            showConfigDialog(packagePath, packageName, position);
             return true;
         });
     }
 
-    private void showDeleteDialog(String packagePath, int pos) {
-        String packageName = Uri.parse(packagePath).getLastPathSegment();
-
+    private void showConfigDialog(String packagePath, String packageName, int pos) {
+        final EditText input = new EditText(context);
+        input.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ));
+        input.setText(packageName);
+        input.setHint("Enter package name...");
+        LinearLayout container = new LinearLayout(context);
+        container.setPadding(36,8,36,8);
+        container.addView(input);
         new MaterialAlertDialogBuilder(context)
-                .setTitle("Delete " + packageName + " package?")
-                .setPositiveButton("Delete", (dialog, which) -> deletePackage(packagePath, pos))
-                .setNegativeButton("Cancel", null)
+                .setView(container)
+                .setTitle("Configure "+packageName)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String inp = input.getText().toString().trim();
+                    if(inp.matches("[a-zA-Z0-9]+")){
+                    if(util.renameFile(packagePath, inp) && util.renameFile(Config.getPkgTmpDir(context, packageName), inp)){
+                        data.get(pos).put("path", Config.getPkgDir(context, inp));
+                        notifyItemChanged(pos);
+                        util.toast("Package renamed!");
+                    }else{
+                        util.toast("Pacakge rename failed!");
+                    }
+                    }else{
+                        util.toast("Invalid format!");
+                    }
+                })
+                .setNegativeButton("Delete", (dialog, which) -> deletePackage(packagePath, packageName, pos))
                 .show();
     }
 
-    private void deletePackage(String packagePath, int pos) {
-        try {
-            util.deleteFile(packagePath);
+    private void deletePackage(String packagePath, String packageName, int pos) {
+            if(util.deleteFile(packagePath) && util.deleteFile(Config.getPkgTmpDir(context, packageName))){
             data.remove(pos);
             notifyItemRemoved(pos);
             notifyItemRangeChanged(pos, data.size());
             util.toast("Package deleted!");
-        } catch (Exception e) {
+           }else{
             util.toast("Couldn't delete this package!");
         }
     }

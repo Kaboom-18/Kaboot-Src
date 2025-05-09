@@ -1,6 +1,7 @@
 package geq.kaboom.app.kaboot;
 
 import android.content.Context;
+import android.net.Uri;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,149 +17,173 @@ import java.util.HashMap;
 
 public class KabUtil {
 
- private Context context;
+  private Context context;
 
-    public KabUtil(Context context){
-        this.context = context;
+  public KabUtil(Context context) {
+    this.context = context;
+  }
+
+  public void toast(String msg) {
+    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+  }
+
+  public String fetch(String urlString) throws IOException {
+    StringBuilder content = new StringBuilder();
+    HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection();
+    connection.setRequestMethod("GET");
+    connection.setRequestProperty("Accept", "application/json");
+
+    int responseCode = connection.getResponseCode();
+    if (responseCode != HttpURLConnection.HTTP_OK) {
+      throw new IOException("HTTP request failed with code: " + responseCode);
     }
 
-    public void toast(String msg) {
-        Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+    try (BufferedReader in =
+        new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+      String inputLine;
+      while ((inputLine = in.readLine()) != null) {
+        content.append(inputLine);
+      }
+    } finally {
+      connection.disconnect();
     }
 
-    public String fetch(String urlString) throws IOException {
-        StringBuilder content = new StringBuilder();
-        HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Accept", "application/json");
+    return content.toString();
+  }
 
-        int responseCode = connection.getResponseCode();
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw new IOException("HTTP request failed with code: " + responseCode);
+  public boolean deleteFile(String path) {
+    if (!isExistFile(path)) return true;
+    try {
+      return (new ProcessBuilder("rm", "-rf", path).start().waitFor() == 0);
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  public void makeDir(String path) {
+    if (isExistFile(path)) return;
+    new File(path).mkdirs();
+  }
+
+  public boolean isExistFile(String path) {
+    return new File(path).exists();
+  }
+
+  public boolean renameFile(String path, String name) {
+      File file = new File(path);
+    return file.renameTo(new File(file.getParent(), name));
+  }
+
+  private boolean createNewFile(String path) {
+    try {
+      File file = new File(path);
+      File parent = file.getParentFile();
+      if (parent != null && !parent.exists()) parent.mkdirs();
+      if (!isExistFile(path)) file.createNewFile();
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  public void resetFolder(String path) {
+    deleteFile(path);
+    makeDir(path);
+  }
+    
+  public String getLastPath(String path){
+      return Uri.parse(path).getLastPathSegment();
+  }
+
+  public boolean writeFile(String path, String content) {
+    if (!createNewFile(path)) return false;
+    try (FileWriter writer = new FileWriter(path, false)) {
+      writer.write(content);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  public String readFile(String path) {
+    if (!isExistFile(path)) return null;
+    StringBuilder sb = new StringBuilder();
+
+    try (FileReader fr = new FileReader(path);
+        BufferedReader br = new BufferedReader(fr)) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        sb.append(line).append('\n');
+      }
+    }catch(Exception e){
+        return null;
+    }
+
+    return sb.toString().trim();
+  }
+
+  public ArrayList<HashMap<String, String>> getProcesses()
+      throws IOException, InterruptedException {
+    ArrayList<HashMap<String, String>> processList = new ArrayList<>();
+    Process process = new ProcessBuilder("ps", "-eo", "pid,comm").start();
+
+    try (BufferedReader reader =
+        new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+      reader.readLine(); // skip header
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] parts = line.trim().split("\\s+", 2);
+        if (parts.length == 2) {
+          HashMap<String, String> map = new HashMap<>();
+          map.put("pid", parts[0]);
+          map.put("name", parts[1]);
+          processList.add(map);
         }
-
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                content.append(inputLine);
-            }
-        } finally {
-            connection.disconnect();
-        }
-
-        return content.toString();
+      }
     }
 
-    public void deleteFile(String path) throws IOException, InterruptedException {
-        new ProcessBuilder("rm", "-rf", path).start().waitFor();
+    process.waitFor();
+    return processList;
+  }
+
+  public boolean killProcess(int pid) {
+    try {
+      new ProcessBuilder("kill", "-9", String.valueOf(pid)).start().waitFor();
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  public void showDialog(String content) {
+    new MaterialAlertDialogBuilder(context).setTitle("Error").setMessage(content).show();
+  }
+
+  public String getFolderSize(File file) {
+    long size = calculateSize(file);
+    String[] units = {"B", "KB", "MB", "GB", "TB"};
+    int index = 0;
+    double adjusted = size;
+
+    while (adjusted >= 1024 && index < units.length - 1) {
+      adjusted /= 1024;
+      index++;
     }
 
-    public void makeDir(String path) {
-        File file = new File(path);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
+    return String.format("%.1f%s", adjusted, units[index]);
+  }
+
+  public long calculateSize(File file) {
+    if (Files.isSymbolicLink(file.toPath())) return 0;
+    if (file.isFile()) return file.length();
+
+    long total = 0;
+    File[] files = file.listFiles();
+    if (files != null) {
+      for (File f : files) {
+        total += calculateSize(f);
+      }
     }
-
-    public boolean isExistFile(String path) {
-        return new File(path).exists();
-    }
-
-    private void createNewFile(String path) throws IOException {
-        File file = new File(path);
-        File parent = file.getParentFile();
-        if (parent != null && !parent.exists()) {
-            parent.mkdirs();
-        }
-
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-    }
-
-    public void writeFile(String path, String content) throws IOException {
-        createNewFile(path);
-        try (FileWriter writer = new FileWriter(path, false)) {
-            writer.write(content);
-        }
-    }
-
-    public String readFile(String path) throws IOException {
-        createNewFile(path);
-        StringBuilder sb = new StringBuilder();
-
-        try (FileReader fr = new FileReader(path);
-             BufferedReader br = new BufferedReader(fr)) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line).append('\n');
-            }
-        }
-
-        return sb.toString().trim();
-    }
-
-    public ArrayList<HashMap<String, String>> getProcesses() throws IOException, InterruptedException {
-        ArrayList<HashMap<String, String>> processList = new ArrayList<>();
-        Process process = new ProcessBuilder("ps", "-eo", "pid,comm").start();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            reader.readLine(); // skip header
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.trim().split("\\s+", 2);
-                if (parts.length == 2) {
-                    HashMap<String, String> map = new HashMap<>();
-                    map.put("pid", parts[0]);
-                    map.put("name", parts[1]);
-                    processList.add(map);
-                }
-            }
-        }
-
-        process.waitFor();
-        return processList;
-    }
-
-    public void killProcess(int pid) throws IOException, InterruptedException {
-        new ProcessBuilder("kill", "-9", String.valueOf(pid)).start().waitFor();
-    }
-
-    public void errorDialog(String content) {
-        TextView messageView = new TextView(context);
-        messageView.setText(content);
-        new MaterialAlertDialogBuilder(context)
-                .setTitle("Error")
-                .setView(messageView)
-                .setPositiveButton("OK", null)
-                .show();
-    }
-
-    public String getFolderSize(File file) {
-        long size = calculateSize(file);
-        String[] units = {"B", "KB", "MB", "GB", "TB"};
-        int index = 0;
-        double adjusted = size;
-
-        while (adjusted >= 1024 && index < units.length - 1) {
-            adjusted /= 1024;
-            index++;
-        }
-
-        return String.format("%.1f%s", adjusted, units[index]);
-    }
-
-    public long calculateSize(File file) {
-        if (Files.isSymbolicLink(file.toPath())) return 0;
-        if (file.isFile()) return file.length();
-
-        long total = 0;
-        File[] files = file.listFiles();
-        if (files != null) {
-            for (File f : files) {
-                total += calculateSize(f);
-            }
-        }
-        return total;
-    }
+    return total;
+  }
 }

@@ -42,7 +42,7 @@ public final class TerminalActivity extends AppCompatActivity {
         setContentView(R.layout.activity_terminal);
 
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(getIntent().getStringExtra("name"));
+        toolbar.setTitle(Config.getPkgName(this, getIntent().getStringExtra("pkgPath")));
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -58,7 +58,7 @@ public final class TerminalActivity extends AppCompatActivity {
         
         setupTerminalStyle();
 
-        pkg = new Package(this, getIntent().getStringExtra("name"), getIntent().getStringExtra("pkgPath"), getIntent().getStringExtra("config"),
+        pkg = new Package(this, getIntent().getStringExtra("pkgPath"), getIntent().getStringExtra("config"),
             new TerminalSession.SessionChangedCallback() {
                     @Override
                     public void onSessionFinished(TerminalSession finishedSession) {
@@ -87,12 +87,11 @@ public final class TerminalActivity extends AppCompatActivity {
                     public void onBell(TerminalSession session) {}
                 });
 
-       try{
-        session = pkg.getTerminalSession();
-        }catch(Exception e){
+        if((session = pkg.getTerminalSession()) == null){
             util.toast("Couldn't initialize this package!");
             finish();
         }
+        
         mTerminalView.attachSession(session);
     }
 

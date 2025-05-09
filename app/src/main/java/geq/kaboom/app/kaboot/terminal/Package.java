@@ -17,24 +17,27 @@ public class Package {
     private String name;
     private Context context;
     
-   public Package(Context context, String name, String pkgPath, String config, TerminalSession.SessionChangedCallback callback){
+   public Package(Context context, String pkgPath, String config, TerminalSession.SessionChangedCallback callback){
        this.pkgPath = pkgPath;
        this.callback = callback;
        this.context = context;
        this.config = config;
-       this.name = name;
+       this.name = Config.getPkgName(context, pkgPath);
        util = new KabUtil(context);
    }
 
-   public TerminalSession getTerminalSession() throws Exception{
-            return new TerminalSession(getCmd(context), Config.getKabootVars(context), Config.getTmpDir(context), callback);
+   public TerminalSession getTerminalSession() {
+            try{
+             return new TerminalSession(getCmd(context), Config.getKabootVars(context), Config.getTmpDir(context), callback);
+             }catch(Exception e){
+                 return null;
+             }
    }
 
   private String[] getCmd(Context context) throws Exception{
       final ArrayList<String> cmd = new ArrayList<>();
       final JSONObject obj = new JSONObject(config);
-      final String tmpDir = Config.getTmpDir(context);
-        
+      
       cmd.add(Config.getKaboot(context));
       cmd.add("--kill-on-exit");
       cmd.add("-w");
@@ -46,11 +49,11 @@ public class Package {
       cmd.add("-b");
       cmd.add("/sys");
       cmd.add("-b");
-      util.makeDir(tmpDir+"/shm");
-      cmd.add(tmpDir+"/shm:/dev/shm");
+      util.resetFolder(Config.getPkgTmpDir(context, name)+"/shm");
+      cmd.add(Config.getPkgTmpDir(context, name)+"/shm:/dev/shm");
       cmd.add("-b");
-      util.makeDir(tmpDir+"/"+name+"/tmp");
-      cmd.add(tmpDir+"/"+name+"/tmp:/tmp");
+      util.makeDir(Config.getPkgTmpDir(context, name)+"/tmp");
+      cmd.add(Config.getPkgTmpDir(context, name)+"/tmp:/tmp");
       cmd.add("-r");
       cmd.add(pkgPath+"/rootfs");
       

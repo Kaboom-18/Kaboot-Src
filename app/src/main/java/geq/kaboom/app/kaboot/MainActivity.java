@@ -97,8 +97,8 @@ public class MainActivity extends AppCompatActivity {
     private void showInstallDialog() {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setOnDismissListener(dialog -> {
-            if(Config.installed){
-            Config.installed = false;
+            if(Config.refreshList){
+            Config.refreshList = false;
             refresh();
             }
         });
@@ -184,8 +184,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             ArrayList<String> names = new ArrayList<>();
             ArrayList<HashMap<String, String>> processes;
-
-            try {
+                try{
                 processes = util.getProcesses();
                 for (HashMap<String, String> process : processes) {
                     names.add(process.get("name"));
@@ -194,16 +193,15 @@ public class MainActivity extends AppCompatActivity {
                 Config.UI.post(() -> new MaterialAlertDialogBuilder(this)
                         .setTitle("Kill a running process")
                         .setItems(names.toArray(new String[0]), (dialog, which) -> {
-                            try {
                                 int pid = Integer.parseInt(processes.get(which).get("pid"));
                                 String name = processes.get(which).get("name");
 
-                                util.killProcess(pid);
+                                if(util.killProcess(pid)){
                                 util.toast("Process [" + name + "] with pid [" + pid + "] killed successfully!");
-                            } catch (Exception e) {
+                                }else {
                                 util.toast("Failed to kill [" + processes.get(which).get("name")
                                                 + "] with pid [" + processes.get(which).get("pid") + "]");
-                            }
+                                 }
                         }).show());
 
             } catch (Exception e) {

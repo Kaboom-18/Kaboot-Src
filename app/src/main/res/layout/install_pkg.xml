@@ -6,17 +6,27 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:layout_marginTop="4dp"
-     android:layout_marginBottom="4dp"
-     android:layout_marginLeft="5dp"
-     android:layout_marginRight="5dp"
+    android:layout_marginBottom="4dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
     app:cardCornerRadius="10dp">
 
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:gravity="center_horizontal|center_vertical"
         android:padding="5dp"
         android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="horizontal">
+            
+            <ImageView
+                android:layout_height="30dp"
+                android:layout_width="30dp"
+                android:src="@drawable/ic_pkg" />
 
             <TextView
                 android:layout_height="wrap_content"
@@ -28,23 +38,22 @@
                 android:id="@+id/name"
                 android:text="Name"
                 android:textStyle="bold" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:visibility="gone"
-            android:id="@+id/download">
+            android:layout_width="match_parent">
 
-           <com.google.android.material.progressindicator.LinearProgressIndicator
+            <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:indeterminate="false"
                 android:padding="8dp"
                 android:focusable="false"
+                android:visibility="gone"
                 android:id="@+id/prog" />
             <TextView
                 android:text="/"
-                android:singleLine="true"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:textSize="12dp"
