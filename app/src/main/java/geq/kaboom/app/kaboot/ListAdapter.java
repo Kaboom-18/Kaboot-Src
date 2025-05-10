@@ -69,8 +69,9 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             holder.icon.setVisibility(View.GONE);
             holder.name.setText("Invalid Package!");
         }
-        holder.icon.setOnClickListener(v -> context.startActivity(intent));
-        holder.base.setOnLongClickListener(v -> {
+        holder.icon.setOnClickListener((v) -> context.startActivity(intent));
+        holder.base.setOnLongClickListener((v) -> {
+            if(configContent == null) return true;
             showConfigDialog(packagePath, packageName, position);
             return true;
         });
@@ -80,7 +81,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         final EditText input = new EditText(context);
         input.setLayoutParams(new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.MATCH_PARENT
+            LinearLayout.LayoutParams.WRAP_CONTENT
         ));
         input.setText(packageName);
         input.setHint("Enter package name...");
@@ -90,18 +91,20 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         new MaterialAlertDialogBuilder(context)
                 .setView(container)
                 .setTitle("Configure "+packageName)
-                .setPositiveButton("Save", (dialog, which) -> {
+                .setOnDismissListener((dialog) -> {
                     String inp = input.getText().toString().trim();
-                    if(inp.matches("[a-zA-Z0-9]+")){
-                    if(util.renameFile(packagePath, inp) && util.renameFile(Config.getPkgTmpDir(context, packageName), inp)){
+                    if(inp.equals(packageName)) return;
+                    if(!inp.matches("[a-zA-Z0-9]+")){
+                        util.toast("Invalid format!");
+                        return;
+                    }
+                    util.renameFile(Config.getPkgTmpDir(context, packageName), inp);
+                    if(util.renameFile(packagePath, inp)){
                         data.get(pos).put("path", Config.getPkgDir(context, inp));
                         notifyItemChanged(pos);
                         util.toast("Package renamed!");
                     }else{
-                        util.toast("Pacakge rename failed!");
-                    }
-                    }else{
-                        util.toast("Invalid format!");
+                        util.toast("Package rename failed!");
                     }
                 })
                 .setNegativeButton("Delete", (dialog, which) -> deletePackage(packagePath, packageName, pos))

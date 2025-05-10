@@ -73,6 +73,7 @@ public class KabUtil {
   }
 
   public boolean renameFile(String path, String name) {
+      if(!isExistFile(path)) return false;
       File file = new File(path);
     return file.renameTo(new File(file.getParent(), name));
   }
