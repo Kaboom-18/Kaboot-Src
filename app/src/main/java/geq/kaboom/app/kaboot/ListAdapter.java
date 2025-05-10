@@ -98,8 +98,11 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
                         util.toast("Invalid format!");
                         return;
                     }
-                    util.renameFile(Config.getPkgTmpDir(context, packageName), inp);
-                    if(util.renameFile(packagePath, inp)){
+                    boolean tmp = true;
+                    if(util.isExistFile(Config.getPkgTmpDir(context, packageName))){
+                    tmp = util.renameFile(Config.getPkgTmpDir(context, packageName), inp);
+                    }
+                    if(tmp && util.renameFile(packagePath, inp)){
                         data.get(pos).put("path", Config.getPkgDir(context, inp));
                         notifyItemChanged(pos);
                         util.toast("Package renamed!");
