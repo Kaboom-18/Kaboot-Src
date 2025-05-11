@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             });
             
         base.setOnRefreshListener(() -> refresh());
-        
+
         refresh();
         fetchPackages();
     }
@@ -223,13 +223,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.running_process) {
+        if (item.getItemId() ==  R.id.running_process) {
             showRunningProcessesDialog();
             return true;
         }

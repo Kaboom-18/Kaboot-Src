@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
@@ -153,14 +154,23 @@ public final class TerminalActivity extends AppCompatActivity {
         currentFontSize = Math.max(minFontSize, Math.min(currentFontSize, Config.MAX_FONTSIZE));
         mTerminalView.setTextSize(currentFontSize);
     }
+    
+ @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.terminal_menu, menu);
+        return true;
+    }
 
    @Override
 public boolean onOptionsItemSelected(MenuItem item) {
-    if (item.getItemId() == android.R.id.home) {
+    if(item.getItemId() == android.R.id.home){
           if(session != null) session.finishIfRunning();
           util.toast("Terminated!");
         return true;
-    }
+       } 
+    if(item.getItemId() == R.id.add){
+       return true;
+       }
     return super.onOptionsItemSelected(item);
 }
 }

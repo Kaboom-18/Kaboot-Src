@@ -69,7 +69,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             holder.icon.setVisibility(View.GONE);
             holder.name.setText("Invalid Package!");
         }
-        holder.icon.setOnClickListener((v) -> context.startActivity(intent));
+        holder.base.setOnClickListener((v) -> context.startActivity(intent));
         holder.base.setOnLongClickListener((v) -> {
             if(configContent == null) return true;
             showConfigDialog(packagePath, packageName, position);
@@ -110,7 +110,14 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
                         util.toast("Package rename failed!");
                     }
                 })
-                .setNegativeButton("Delete", (dialog, which) -> deletePackage(packagePath, packageName, pos))
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    new MaterialAlertDialogBuilder(context)
+                    .setTitle("Are you sure?")
+                    .setMessage("Delete "+packageName)
+                    .setPositiveButton("delete", (d, w)-> deletePackage(packagePath, packageName, pos))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+                })
                 .show();
     }
 
