@@ -111,7 +111,7 @@ public final class TerminalActivity extends AppCompatActivity {
             currentFontSize = defaultFontSize;
         }
 
-        minFontSize = (int) ((Config.FSCALE - 2) * scale);
+        minFontSize = (int) ((Config.FSCALE - 5) * scale);
         currentFontSize = Math.max(minFontSize, Math.min(currentFontSize, Config.MAX_FONTSIZE));
         mTerminalView.setTextSize(currentFontSize);
 
