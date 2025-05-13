@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private ListAdapter adapter;
     private KabUtil util;
     private SharedPreferences config;
+    private TextView warn;
    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +54,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         list = findViewById(R.id.list);
+        warn = findViewById(R.id.warn);
         base = findViewById(R.id.base);
         install = findViewById(R.id.install);
         toolbar = findViewById(R.id.toolbar);
+        
 
         setSupportActionBar(toolbar);
 
         PATH = new File(getFilesDir(), "Packages");
-        adapter = new ListAdapter(data);
         util = new KabUtil(this);
         config = getSharedPreferences("Configuration", MODE_PRIVATE);
+        adapter = new ListAdapter(data, list, warn);
         
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(adapter);
@@ -89,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             });
             
         base.setOnRefreshListener(() -> refresh());
-
+        
         refresh();
         fetchPackages();
     }
@@ -184,6 +188,13 @@ public class MainActivity extends AppCompatActivity {
 
             Config.UI.post(() -> {
                 data.clear();
+               if(tempData.isEmpty()){
+                    list.setVisibility(View.GONE);
+                    warn.setVisibility(View.VISIBLE);
+                }else{
+                    list.setVisibility(View.VISIBLE);
+                    warn.setVisibility(View.GONE);
+                }
                 data.addAll(tempData);
                 adapter.updateData(data);
                 base.setRefreshing(false);

@@ -26,9 +26,13 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     private final ArrayList<HashMap<String, Object>> data;
     private Context context;
     private KabUtil util;
+    private RecyclerView view;
+    private TextView warn;
 
-    public ListAdapter(ArrayList<HashMap<String, Object>> initialData) {
+    public ListAdapter(ArrayList<HashMap<String, Object>> initialData, RecyclerView view, TextView warn) {
         this.data = new ArrayList<>(initialData);
+        this.view = view;
+        this.warn = warn;
     }
 
     public void updateData(ArrayList<HashMap<String, Object>> newData) {
@@ -124,6 +128,13 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     private void deletePackage(String packagePath, String packageName, int pos) {
             if(util.deleteFile(packagePath) && util.deleteFile(Config.getPkgTmpDir(context, packageName))){
             data.remove(pos);
+           if(data.isEmpty()){
+                    view.setVisibility(View.GONE);
+                    warn.setVisibility(View.VISIBLE);
+                }else{
+                    view.setVisibility(View.VISIBLE);
+                    warn.setVisibility(View.GONE);
+                }
             notifyItemRemoved(pos);
             notifyItemRangeChanged(pos, data.size());
             util.toast("Package deleted!");

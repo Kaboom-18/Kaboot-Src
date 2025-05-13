@@ -20,11 +20,25 @@
             android:background="?attr/android:statusBarColor"/>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:layout_height="wrap_content"
+  <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:gravity="center"
+    android:id="@+id/base">
+
+    <FrameLayout
         android:layout_width="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:id="@+id/base">
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:id="@+id/warn"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="No Packages Installed!"
+            android:gravity="center"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_height="wrap_content"
@@ -32,7 +46,9 @@
             android:paddingTop="4dp"
             android:paddingBottom="2dp"
             android:id="@+id/list" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </FrameLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:src="@drawable/ic_download"
         android:visibility="gone"
