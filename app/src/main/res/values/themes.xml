@@ -14,5 +14,11 @@
         <item name="colorOnSurface">?attr/android:textColor</item>
         <item name="colorOnSurfaceVariant">?attr/android:textColor</item>
         <item name="elevationOverlayEnabled">false</item>
+       <item name="android:windowAnimationStyle">@style/AppWindowAnimation</item>
     </style>
+    
+   <style name="AppWindowAnimation">
+    <item name="android:activityOpenEnterAnimation">@anim/slide_in_bottom</item>
+    <item name="android:activityCloseExitAnimation">@anim/slide_out_bottom</item>
+</style>
 </resources>

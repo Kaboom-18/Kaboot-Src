@@ -39,9 +39,11 @@ public class Package {
       final JSONObject obj = new JSONObject(config);
       
       cmd.add(Config.getKaboot(context));
+      cmd.add("-0");
+      cmd.add("-l");
       cmd.add("--kill-on-exit");
-      cmd.add("-w");
-      cmd.add("/");
+      cmd.add("--ashmem-memfd");
+      cmd.add("--sysvipc");
       cmd.add("-b");
       cmd.add("/dev");
       cmd.add("-b");
@@ -57,11 +59,6 @@ public class Package {
       cmd.add("-r");
       cmd.add(pkgPath+"/rootfs");
       
-                final JSONArray args = obj.getJSONArray("args");
-                for (int i = 0; i < args.length(); i++) {
-                    cmd.add(args.getString(i));
-                }
-            
                 final JSONArray variables = obj.getJSONArray("envVars");
                 for (int i = 0; i < variables.length(); i++) {
                     if (variables.getString(i).startsWith("HOME")) {
