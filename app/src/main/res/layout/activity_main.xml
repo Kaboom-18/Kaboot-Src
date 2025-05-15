@@ -17,7 +17,7 @@
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="?attr/colorPrimary"
             app:title="Home"
-            android:background="?attr/android:statusBarColor"/>
+            android:background="@color/statusBg"/>
     </com.google.android.material.appbar.AppBarLayout>
 
   <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="?attr/colorPrimary"
             app:navigationIcon="@drawable/ic_terminate"
-            android:background="?attr/android:statusBarColor"/>
+            android:background="@color/statusBg"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout

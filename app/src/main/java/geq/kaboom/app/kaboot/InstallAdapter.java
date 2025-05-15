@@ -1,7 +1,6 @@
 package geq.kaboom.app.kaboot;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -13,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -93,7 +93,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
         
         if(util.isExistFile(pkgPath)){
            holder.log.setVisibility(View.VISIBLE);
-           holder.log.setTextColor(Color.parseColor(Config.ERROR_COLOR));
+           holder.log.setTextColor(ContextCompat.getColor(context, R.color.error));
            holder.log.setText("A package with a similar name is already installed. Consider deleting it or renaming your package.");
            return;
         }

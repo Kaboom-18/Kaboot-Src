@@ -9,8 +9,6 @@ import java.io.File;
 public class Config {
 
   public static boolean refreshList = false;
-    
-  public final static String ERROR_COLOR = "#FF555A"; 
             
   public final static int MAX_FONTSIZE = 256;
   

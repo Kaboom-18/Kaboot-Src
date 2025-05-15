@@ -1,0 +1,10 @@
+<resources>
+    <color name="tileBg">#23363C</color> <!-- Slightly lighter teal-gray for contrast inside dialog -->
+    <color name="title">#FFFFFF</color> <!-- Pure white for titles, matching your icons -->
+    <color name="text">#FFFFFF</color> <!-- Light cyan-gray for text, geeky and readable -->
+    <color name="bg">#0B1215</color> <!-- Dark, inky blue-black for a sleek background -->
+    <color name="fabBg">#FF2079</color> <!-- Neon magenta for FAB, vibrant against white icons -->
+    <color name="dialogBg">#11262B</color> <!-- Slightly lighter dark teal, better contrast with tile -->
+    <color name="statusBg">#141D22</color> <!-- Moody, dark blue-gray for status bar -->
+    <color name="error">#FF4A4A</color> <!-- Bright digital red for errors, contrasts with white -->
+</resources>

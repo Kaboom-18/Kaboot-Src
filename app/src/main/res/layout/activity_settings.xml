@@ -18,14 +18,15 @@
             app:titleTextColor="?attr/colorPrimary"
             app:title="Settings"
             app:navigationIcon="@drawable/ic_terminate"
-            android:background="?attr/android:statusBarColor"/>
+            android:background="@color/statusBg"/>
     </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_marginTop="?attr/actionBarSize"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:padding="@dimen/_1sdp"
+            android:padding="@dimen/_4sdp"
+            android:paddingTop="@dimen/_2sdp"
             android:id="@+id/list" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

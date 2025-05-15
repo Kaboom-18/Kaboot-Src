@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -48,8 +49,10 @@ public final class TerminalActivity extends AppCompatActivity {
         mExtraKeysView = findViewById(R.id.extra_keys);
         mTerminalView.setOnKeyListener(new InputDispatcher(this));
         mTerminalView.setKeepScreenOn(true);
-        mTerminalView.requestFocus();
-
+     
+        getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+        getWindow().setNavigationBarColor(Color.BLACK);
+        
         config = getSharedPreferences("Configuration", MODE_PRIVATE);
         currentFontSize = config.getInt("fontSize", -1);
         sessions = new ArrayList<>();
