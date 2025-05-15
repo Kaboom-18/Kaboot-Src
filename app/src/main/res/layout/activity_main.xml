@@ -35,7 +35,7 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:id="@+id/warn"
-            android:textSize="21sp"
+            android:textSize="@dimen/_21ssp"
             android:textStyle="bold"
             android:text="No Packages Installed!"
             android:gravity="center"/>
@@ -43,8 +43,8 @@
         <androidx.recyclerview.widget.RecyclerView
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:paddingTop="4dp"
-            android:paddingBottom="2dp"
+            android:paddingTop="@dimen/_4sdp"
+            android:paddingBottom="@dimen/_2sdp"
             android:id="@+id/list" />
 
     </FrameLayout>
@@ -54,7 +54,7 @@
         android:visibility="gone"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_margin="30dp"
+        android:layout_margin="@dimen/_30sdp"
         android:id="@+id/install"
         android:layout_gravity="right|bottom" />
 

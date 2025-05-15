@@ -25,7 +25,7 @@
             android:layout_marginTop="?attr/actionBarSize"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:padding="1dp"
+            android:padding="@dimen/_1sdp"
             android:id="@+id/list" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

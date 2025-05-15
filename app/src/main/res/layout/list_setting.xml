@@ -2,8 +2,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:layout_margin="1dp"
+    android:padding="@dimen/_16sdp"
+    android:layout_margin="@dimen/_1sdp"
     android:gravity="start|center_vertical"
     android:background="?attr/colorSurface">
 
@@ -12,14 +12,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:textSize="16sp"
+        android:textSize="@dimen/_14ssp"
         android:textColor="?android:textColorPrimary"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="@dimen/_4sdp" />
 
     <TextView
         android:id="@+id/description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="8sp"
+        android:textSize="@dimen/_6ssp"
         android:textColor="?android:textColorSecondary" />
 </LinearLayout>

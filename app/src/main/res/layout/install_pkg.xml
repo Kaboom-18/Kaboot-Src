@@ -5,16 +5,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
-    android:layout_marginLeft="5dp"
-    android:layout_marginRight="5dp"
-    app:cardCornerRadius="10dp">
+    android:layout_marginTop="@dimen/_4sdp"
+    android:layout_marginBottom="@dimen/_4sdp"
+    android:layout_marginLeft="@dimen/_5sdp"
+    android:layout_marginRight="@dimen/_5sdp"
+    app:cardCornerRadius="@dimen/_10sdp">
 
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:padding="5dp"
+        android:padding="@dimen/_5sdp"
         android:orientation="vertical">
 
         <LinearLayout
@@ -24,15 +24,15 @@
             android:orientation="horizontal">
             
             <ImageView
-                android:layout_height="30dp"
-                android:layout_width="30dp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_width="@dimen/_30sdp"
                 android:src="@drawable/ic_pkg" />
 
             <TextView
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:padding="8dp"
-                android:textSize="20sp"
+                android:padding="@dimen/_8sdp"
+                android:textSize="@dimen/_20ssp"
                 android:focusable="false"
                 android:layout_weight="1"
                 android:id="@+id/name"
@@ -40,8 +40,8 @@
                 android:textStyle="bold" />
                 
                <ImageView
-                android:layout_height="30dp"
-                android:layout_width="30dp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_width="@dimen/_30sdp"
                 android:id="@+id/desc"
                 android:src="@drawable/ic_desc" /> 
         </LinearLayout>
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:indeterminate="false"
-                android:padding="8dp"
+                android:padding="@dimen/_8sdp"
                 android:focusable="false"
                 android:visibility="gone"
                 android:id="@+id/prog" />
@@ -62,7 +62,7 @@
                 android:text="/"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:textSize="12dp"
+                android:textSize="@dimen/_12sdp"
                 android:visibility="gone"
                 android:id="@+id/log" />
         </LinearLayout>

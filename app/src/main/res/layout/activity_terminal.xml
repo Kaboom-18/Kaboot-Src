@@ -32,8 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:layout_marginRight="3dp"
-            android:layout_marginLeft="3dp"
+            android:layout_marginRight="@dimen/_3sdp"
+            android:layout_marginLeft="@dimen/_3sdp"
             android:focusableInTouchMode="true"
             android:scrollbarThumbVertical="@drawable/terminal_scroll_shape"
             android:scrollbars="vertical"
@@ -44,7 +44,7 @@
             android:id="@+id/extra_keys"
             style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
-            android:layout_height="58dp"
+            android:layout_height="@dimen/_58sdp"
             android:orientation="horizontal"/>
     </LinearLayout>
 
