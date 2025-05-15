@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         install = findViewById(R.id.install);
         toolbar = findViewById(R.id.toolbar);
         
-
         setSupportActionBar(toolbar);
 
         PATH = new File(getFilesDir(), "Packages");

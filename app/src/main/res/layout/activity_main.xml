@@ -35,7 +35,7 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:id="@+id/warn"
-            android:textSize="16sp"
+            android:textSize="21sp"
             android:textStyle="bold"
             android:text="No Packages Installed!"
             android:gravity="center"/>
