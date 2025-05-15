@@ -202,5 +202,3 @@ JNIEXPORT void JNICALL Java_geq_kaboom_app_kaboot_terminal_termlib_JNI_close(JNI
 {
     close(fileDescriptor);
 }
-
-void main(){}

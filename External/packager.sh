@@ -7,7 +7,7 @@ RED='\033[1;31m'
 RST='\033[0m'
 
 INSTALLED_ROOTFS_DIR=$HOME/packages
-BACKUP_DIR=$HOME/backup
+OUTPUT_DIR=$HOME/output
 
 msg() {
     echo -e "$@"
@@ -18,7 +18,7 @@ config="$2"
 
 if [ -z "$distro_name" ] || [ -z "$config" ]; then
     msg "${RED}[!] Missing arguments.${RST}"
-    msg "${CYAN}Usage: backup <distro_name> <config.json>${RST}"
+    msg "${CYAN}Usage: <distro_name> <config.json>${RST}"
     exit 1
 fi
 
@@ -38,14 +38,14 @@ find "${INSTALLED_ROOTFS_DIR}/${distro_name}" -type f -executable -print0 | xarg
 find "${INSTALLED_ROOTFS_DIR}/${distro_name}" -type f ! -executable -print0 | xargs -0 -r chmod u+r
 msg "${BLUE}[${GREEN}*${BLUE}] ${CYAN}File permissions fixed.${RST}"
 
-mkdir -p "${BACKUP_DIR}"
+mkdir -p "${OUTPUT_DIR}"
 temp_dir=$(mktemp -d)
 
 # Copy rootfs and config
 cp -r "${INSTALLED_ROOTFS_DIR}/${distro_name}" "${temp_dir}/rootfs"
 cp "$config" "${temp_dir}/config.json"
 
-backup_file="${BACKUP_DIR}/${distro_name}.tar.gz"
+backup_file="${OUTPUT_DIR}/${distro_name}.tar.gz"
 msg "${BLUE}[${GREEN}*${BLUE}] ${CYAN}Backing up to '${backup_file}'...${RST}"
 
 proot -l tar -czf "${backup_file}" -C "${temp_dir}" rootfs config.json

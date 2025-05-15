@@ -1,0 +1,31 @@
+>Note remember to update the libtalloc proot ndk and packages and atleast make it updated
+
+
+#GENERATE libterminal.so
+
+$open termux
+cd $HOME
+wget https://github.com/MrIkso/AndroidIDE-NDK/releases/download/ndk/android-ndk-r27b-aarch64.zip
+unzip android-ndk-r27b-aarch64.zip
+$copy the terminal folder to $HOME
+cd terminal
+export NDK_PROJECT_PATH=$PWD
+~/android-ndk-r27b/ndk-build
+
+$The output libs will be in terminal/libs folder
+
+#GENERATE libk* files
+
+$open termux
+$copy the build-kbm.sh to $HOME
+bash build-kbm.sh
+
+$The output libs will be in output folder (it will be in linux abi add it to respectetive android ani)
+
+#GENERATE package.tar.gz files
+
+$open termux
+$copy the packages.sh to $HOME
+bash packages.sh <rootfs folder of the pkg> <config of the pkg "config.json" file>
+
+$The output will be in backup folder
