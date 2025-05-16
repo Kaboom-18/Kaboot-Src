@@ -2,7 +2,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/_10sdp"
+    android:padding="@dimen/_8sdp"
     android:layout_margin="@dimen/_2sdp"
     android:gravity="start|center_vertical"
     android:background="@drawable/tile">

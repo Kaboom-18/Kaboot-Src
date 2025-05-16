@@ -8,7 +8,7 @@
     android:layout_marginBottom="@dimen/_4sdp"
     android:layout_marginLeft="@dimen/_5sdp"
     android:layout_marginRight="@dimen/_5sdp"
-    android:padding="@dimen/_5sdp"
+    android:padding="@dimen/_4sdp"
     android:orientation="vertical"
     android:background="@drawable/tile">
 

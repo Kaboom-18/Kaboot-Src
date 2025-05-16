@@ -74,7 +74,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         settings.add(new SettingItem(
                 config.getBoolean("size", false) ? "Hide package size" : "Show package size",
-                "Specify whether the package should display its size. Showing size may increase loading time.",
+                "Specify whether the package should display its size. Showing size may increase refreshing time.",
                 (t, d) -> {
                     boolean newState = !config.getBoolean("size", false);
                     configEditor.putBoolean("size", newState).apply();
