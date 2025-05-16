@@ -9,7 +9,7 @@
     android:layout_marginLeft="@dimen/_5sdp"
     android:layout_marginRight="@dimen/_5sdp"
     android:gravity="center_horizontal|center_vertical"
-    android:padding="@dimen/_8sdp"
+    android:padding="@dimen/_5sdp"
     android:id="@+id/base"
     android:orientation="horizontal"
     android:background="@drawable/tile">
@@ -21,7 +21,6 @@
         android:id="@+id/icon" />
 
     <TextView
-        android:layout_marginLeft="@dimen/_5sdp"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:padding="@dimen/_5sdp"
