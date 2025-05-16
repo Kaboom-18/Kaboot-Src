@@ -9,14 +9,14 @@
         <item name="colorPrimaryContainer">@color/fabBg</item>
         <item name="colorSurface">@color/dialogBg</item>
         <item name="android:textColor">@color/text</item>
-        <item name="android:colorBackground">@color/bg</item>
+        <item name="android:windowBackground">@color/bg</item> <!-- fixed here -->
         <item name="android:statusBarColor">@color/statusBg</item>
 
         <item name="colorOnPrimaryContainer">@color/text</item>
         <item name="android:navigationBarColor">@color/bg</item>
         <item name="colorOnSurface">@color/text</item>
         <item name="colorOnSurfaceVariant">@color/text</item>
-        <item name="elevationOverlayEnabled">false</item>
+        <item name="elevationOverlayEnabled">false</item> <!-- Check if this is recognized -->
         <item name="android:windowAnimationStyle">@style/AppWindowAnimation</item>
     </style>
 

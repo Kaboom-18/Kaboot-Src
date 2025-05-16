@@ -52,7 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
         container.setPadding(36,8,36,8);
         container.addView(input);
         new MaterialAlertDialogBuilder(this)
-                .setTitle("Custom Package repository")
+                .setTitle("Custom Package Repository")
                 .setMessage("(Do not enter anything unless you know what you're doing!)")
                 .setView(container)
                 .setPositiveButton("OK", (dialog, which) -> {
@@ -61,6 +61,32 @@ public class SettingsActivity extends AppCompatActivity {
                     })
                 .setNegativeButton("Reset", (dialog, which) -> {
                     configEditor.remove("repo").apply();
+                    setResult(Config.PKG_REFRESH_CODE);
+                })
+                .show();
+        }));
+        
+       settings.add(new SettingItem("Default Terminal Color", "Define the default background color of terminal.", (t,d) -> {
+        final EditText input = new EditText(this);
+        input.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ));
+        input.setText(config.getString("color", ""));
+        input.setHint("Enter default terminal color");
+        LinearLayout container = new LinearLayout(this);
+        container.setPadding(36,8,36,8);
+        container.addView(input);
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Default color")
+                .setMessage("Enter the default color of terminal")
+                .setView(container)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    configEditor.putString("color", input.getText().toString().trim()).apply();
+                    setResult(Config.PKG_REFRESH_CODE);
+                    })
+                .setNegativeButton("Reset", (dialog, which) -> {
+                    configEditor.remove("color").apply();
                     setResult(Config.PKG_REFRESH_CODE);
                 })
                 .show();

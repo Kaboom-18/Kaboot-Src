@@ -13,6 +13,8 @@ public class Config {
   public final static int MAX_FONTSIZE = 256;
   
   public final static float FSCALE = 12f;
+    
+  public final static String TERM_BG = "#000000";
   
   public final static Handler UI = new Handler(Looper.getMainLooper());
   

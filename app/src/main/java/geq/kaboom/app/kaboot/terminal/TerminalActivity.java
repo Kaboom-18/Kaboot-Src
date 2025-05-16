@@ -48,16 +48,22 @@ public final class TerminalActivity extends AppCompatActivity {
         mTerminalView = findViewById(R.id.terminal_view);
         mExtraKeysView = findViewById(R.id.extra_keys);
         mTerminalView.setOnKeyListener(new InputDispatcher(this));
+        mTerminalView.requestFocus();
         mTerminalView.setKeepScreenOn(true);
-     
-        getWindow().getDecorView().setBackgroundColor(Color.BLACK);
-        getWindow().setNavigationBarColor(Color.BLACK);
         
         config = getSharedPreferences("Configuration", MODE_PRIVATE);
         currentFontSize = config.getInt("fontSize", -1);
         sessions = new ArrayList<>();
         util = new KabUtil(this);
-
+        
+        try{
+        getWindow().getDecorView().setBackgroundColor(Color.parseColor(config.getString("color", Config.TERM_BG)));
+        getWindow().setNavigationBarColor(Color.parseColor(config.getString("color", Config.TERM_BG)));
+        }catch(Exception e){
+            util.toast("Invalid terminal color returing to default!");
+           getWindow().getDecorView().setBackgroundColor(Color.parseColor(Config.TERM_BG));
+        getWindow().setNavigationBarColor(Color.parseColor(Config.TERM_BG));
+        }
         setupTerminalStyle();
         addAndSwitchSession();
     }
