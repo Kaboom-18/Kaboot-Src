@@ -4,6 +4,8 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.net.Uri;
+import android.system.Os;
+import android.system.OsConstants;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -137,18 +139,19 @@ public class KabUtil {
   public ArrayList<HashMap<String, String>> getProcesses()
       throws IOException, InterruptedException {
     ArrayList<HashMap<String, String>> processList = new ArrayList<>();
-    Process process = new ProcessBuilder("ps", "-eo", "pid,comm").start();
+    java.lang.Process process = new ProcessBuilder("ps", "-eo", "pid,ppid,user,comm").start();
 
     try (BufferedReader reader =
         new BufferedReader(new InputStreamReader(process.getInputStream()))) {
       reader.readLine(); // skip header
       String line;
       while ((line = reader.readLine()) != null) {
-        String[] parts = line.trim().split("\\s+", 2);
-        if (parts.length == 2) {
+        String[] parts = line.trim().split("\\s+", 4);
+        if(parts[1].equals(String.valueOf(Os.getpid()))) continue;
+        if (parts.length == 4) {
           HashMap<String, String> map = new HashMap<>();
           map.put("pid", parts[0]);
-          map.put("name", parts[1]);
+          map.put("name", parts[3]);
           processList.add(map);
         }
       }
@@ -160,7 +163,7 @@ public class KabUtil {
 
   public boolean killProcess(int pid) {
     try {
-      new ProcessBuilder("kill", "-9", String.valueOf(pid)).start().waitFor();
+      Os.kill(pid, OsConstants.SIGKILL);
       return true;
     } catch (Exception e) {
       return false;
