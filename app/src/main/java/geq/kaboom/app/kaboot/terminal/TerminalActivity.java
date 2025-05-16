@@ -88,12 +88,7 @@ public final class TerminalActivity extends AppCompatActivity {
 
                     @Override
                     public void onClipboardText(TerminalSession session, String text) {
-                        ClipboardManager clipboard = getSystemService(ClipboardManager.class);
-                        if (clipboard != null) {
-                            clipboard.setPrimaryClip(
-                                    new ClipData(null, new String[]{"text/plain"},
-                                            new ClipData.Item(text)));
-                        }
+                        util.copy(text);
                     }
 
                     @Override

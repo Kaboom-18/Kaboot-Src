@@ -1,10 +1,13 @@
 package geq.kaboom.app.kaboot;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.net.Uri;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.*;
@@ -194,5 +197,12 @@ public class KabUtil {
       }
     }
     return total;
+  }
+
+  public void copy(String content) {
+    ClipboardManager clipboard = ContextCompat.getSystemService(context, ClipboardManager.class);
+    if (clipboard == null) return;
+      clipboard.setPrimaryClip(new ClipData(null, new String[] {"text/plain"}, new ClipData.Item(content)));
+      toast("Copied to clipboard!");
   }
 }

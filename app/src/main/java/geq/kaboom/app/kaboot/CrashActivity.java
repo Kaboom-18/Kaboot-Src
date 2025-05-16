@@ -11,12 +11,13 @@ public class CrashActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     getWindow().setStatusBarColor(Color.parseColor("#101010"));
+    final KabUtil util = new KabUtil(this);
     final String crashLog = getIntent().getStringExtra("log");
     new MaterialAlertDialogBuilder(this)
         .setTitle("Application Crashed!")
         .setMessage(crashLog)
         .setPositiveButton(
-            "Send Report",
+            "Send",
             (dialog, which) -> {
               Intent intent = new Intent(Intent.ACTION_SEND);
               intent.setType("message/rfc822");
@@ -26,9 +27,10 @@ public class CrashActivity extends AppCompatActivity {
               try {
                 startActivity(Intent.createChooser(intent, "Send email using..."));
               } catch (android.content.ActivityNotFoundException ex) {}
-              finishAffinity();
             })
-        .setNegativeButton("Close", (dialog, which) -> finishAffinity())
+        .setNeutralButton("Copy", (dialog, which) ->  util.copy(crashLog))
+        .setNegativeButton("Close", null)
+        .setOnDismissListener((dialog)-> finishAffinity())
         .setCancelable(false)
         .show();
   }
