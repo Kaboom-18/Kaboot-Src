@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refresh() {
-        if(!base.isRefreshing())base.setRefreshing(true);
+        base.setRefreshing(true);
         new Thread(() -> {
             ArrayList<HashMap<String, Object>> tempData = new ArrayList<>();
 
