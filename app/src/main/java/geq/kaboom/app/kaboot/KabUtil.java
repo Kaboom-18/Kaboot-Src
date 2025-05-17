@@ -151,6 +151,7 @@ public class KabUtil {
         if (parts.length == 4) {
           HashMap<String, String> map = new HashMap<>();
           map.put("pid", parts[0]);
+          map.put("ppid", parts[1]);
           map.put("name", parts[3]);
           processList.add(map);
         }

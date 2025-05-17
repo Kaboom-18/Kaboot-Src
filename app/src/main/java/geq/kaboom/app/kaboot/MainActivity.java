@@ -202,33 +202,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showRunningProcessesDialog() {
-        new Thread(() -> {
             ArrayList<String> names = new ArrayList<>();
             ArrayList<HashMap<String, String>> processes;
-                try{
+            try{
                 processes = util.getProcesses();
-                for (HashMap<String, String> process : processes) {
-                    names.add(process.get("name"));
+            }catch(Exception e){
+                    util.toast("Couldn't fetch processes!");
+                    return;
                 }
-
-                Config.UI.post(() -> new MaterialAlertDialogBuilder(this)
+                processes.forEach((process)-> names.add(process.get("name")));
+                new MaterialAlertDialogBuilder(this)
                         .setTitle("Kill a running process")
                         .setItems(names.toArray(new String[0]), (dialog, which) -> {
-                                int pid = Integer.parseInt(processes.get(which).get("pid"));
-                                String name = processes.get(which).get("name");
-
-                                if(util.killProcess(pid)){
-                                util.toast("Process [" + name + "] with pid [" + pid + "] killed successfully!");
+                                if(util.killProcess(Integer.parseInt(processes.get(which).get("pid")))){
+                                util.toast("Process [" + processes.get(which).get("name") + "] with pid [" + processes.get(which).get("pid") + "] killed successfully!");
                                 }else {
                                 util.toast("Failed to kill [" + processes.get(which).get("name")
                                                 + "] with pid [" + processes.get(which).get("pid") + "]");
                                  }
-                        }).show());
-
-            } catch (Exception e) {
-                Config.UI.post(() -> util.toast("Couldn't fetch processes"));
-            }
-        }).start();
+                        }).show();
     }
 
     @Override

@@ -76,7 +76,6 @@ public class Package {
                 for (int i = 0; i < commands.length(); i++) {
                     cmd.add(commands.getString(i));
                 }
-            
     return cmd.toArray(new String[0]);
   }
 }

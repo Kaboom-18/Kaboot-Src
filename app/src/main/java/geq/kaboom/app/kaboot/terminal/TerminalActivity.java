@@ -8,11 +8,9 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -35,6 +33,7 @@ public final class TerminalActivity extends AppCompatActivity {
     private KabUtil util;
     private Package pkg;
     private ArrayList<TerminalSession> sessions;
+    private InputDispatcher disp;
 
     TerminalView mTerminalView;
     ExtraKeysView mExtraKeysView;
@@ -45,19 +44,20 @@ public final class TerminalActivity extends AppCompatActivity {
         setContentView(R.layout.activity_terminal);
 
         toolbar = findViewById(R.id.toolbar);
+        sessions = new ArrayList<>();
+        util = new KabUtil(this);
+        disp = new InputDispatcher(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mTerminalView = findViewById(R.id.terminal_view);
         mExtraKeysView = findViewById(R.id.extra_keys);
-        mTerminalView.setOnKeyListener(new InputDispatcher(this));
+        mTerminalView.setOnKeyListener(disp);
         mTerminalView.requestFocus();
         mTerminalView.setKeepScreenOn(true);
         
         config = getSharedPreferences("Configuration", MODE_PRIVATE);
         currentFontSize = config.getInt("fontSize", -1);
-        sessions = new ArrayList<>();
-        util = new KabUtil(this);
         
         try{
         getWindow().getDecorView().setBackgroundColor(Color.parseColor(config.getString("color", Config.TERM_BG)));
@@ -67,16 +67,12 @@ public final class TerminalActivity extends AppCompatActivity {
            getWindow().getDecorView().setBackgroundColor(Color.parseColor(Config.TERM_BG));
         getWindow().setNavigationBarColor(Color.parseColor(Config.TERM_BG));
         }
-        setupTerminalStyle();
-        addAndSwitchSession();
-    }
-
-    private void addAndSwitchSession() {
+       
         pkg = new Package(this, getIntent().getStringExtra("pkgPath"), getIntent().getStringExtra("config"),
                 new TerminalSession.SessionChangedCallback() {
                     @Override
                     public void onSessionFinished(TerminalSession finishedSession) {
-                        killSession(finishedSession);
+                        removeAndSwitchSession(finishedSession);
                     }
 
                     @Override
@@ -85,9 +81,7 @@ public final class TerminalActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onTitleChanged(TerminalSession changedSession) {
-                        util.toast("Title Changed");
-                    }
+                    public void onTitleChanged(TerminalSession changedSession) {}
 
                     @Override
                     public void onClipboardText(TerminalSession session, String text) {
@@ -97,7 +91,11 @@ public final class TerminalActivity extends AppCompatActivity {
                     @Override
                     public void onBell(TerminalSession session) {}
                 });
+        setupTerminalStyle();
+        addAndSwitchSession();
+    }
 
+    private void addAndSwitchSession() {
         TerminalSession session = pkg.getTerminalSession();
         if (session == null) {
             util.toast("Couldn't initialize this package!");
@@ -179,12 +177,6 @@ public final class TerminalActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             killSessions();
             util.toast("Terminated!");
-            finish();
-            return true;
-        }
-
-        if (item.getItemId() == R.id.add) {
-            addAndSwitchSession();
             return true;
         }
 
@@ -196,6 +188,12 @@ public final class TerminalActivity extends AppCompatActivity {
             new MaterialAlertDialogBuilder(this)
                     .setTitle("Active Sessions")
                     .setItems(sessionTitles.toArray(new String[0]), (dialog, which) -> loadSession(which))
+                    .setPositiveButton("Add", (dialog, which)->{
+                       addAndSwitchSession();
+                    })
+                    .setNegativeButton("Keyboard", (dialog, which)->{
+                        disp.onSingleTapUp(null);
+                    })
                     .show();
             return true;
         }
@@ -204,29 +202,20 @@ public final class TerminalActivity extends AppCompatActivity {
     }
 
     private void killSessions() {
-        if (sessions != null) {
+        if (sessions == null) return;
             for (TerminalSession session : sessions) {
-                if (session != null) {
-                    session.finishIfRunning();
-                }
+                if(!killSessionProcess(session.getPid())) util.toast("Session processes autoKill failed!");
+                session.finishIfRunning();
             }
-            sessions.clear();
-        }
     }
 
-    private void killSession(TerminalSession session) {
-        if (session == null || sessions == null) return;
-
+   private void removeAndSwitchSession(TerminalSession session) {
         int pos = sessions.indexOf(session);
-        if (pos >= 0) {
             sessions.remove(pos);
             if (!sessions.isEmpty()) {
                 int newIndex = Math.max(0, Math.min(pos - 1, sessions.size() - 1));
                 loadSession(newIndex);
-            } else {
-                finish();
-            }
-        }
+            } else finish();
     }
 
     private void loadSession(int pos) {
@@ -237,4 +226,16 @@ public final class TerminalActivity extends AppCompatActivity {
             );
         }
     }
+    
+    public boolean killSessionProcess(int ppid){
+        final boolean res[] = {false};
+           try{
+                util.getProcesses().forEach((process)-> {
+                if(process.get("ppid").equals(String.valueOf(ppid))){
+                    killSessionProcess(Integer.valueOf(process.get("pid")));
+                    res[0] = util.killProcess(Integer.parseInt(process.get("pid")));
+                }});
+                }catch(Exception e){}
+                return res[0];
+            }
 }
