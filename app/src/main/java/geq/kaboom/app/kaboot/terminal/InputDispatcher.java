@@ -8,6 +8,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.core.content.ContextCompat;
 import java.util.Objects;
 
 import geq.kaboom.app.kaboot.terminal.termlib.KeyHandler;
@@ -38,11 +39,8 @@ public final class InputDispatcher implements TerminalViewClient {
 
     @Override
     public void onSingleTapUp(MotionEvent e) {
-        InputMethodManager mgr =
-                (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (mgr != null) {
-            mgr.showSoftInput(mActivity.mTerminalView, InputMethodManager.SHOW_IMPLICIT);
-        }
+        InputMethodManager mgr = (InputMethodManager) ContextCompat.getSystemService(mActivity, InputMethodManager.class);
+        if (mgr != null) mgr.showSoftInput(mActivity.mTerminalView, InputMethodManager.SHOW_IMPLICIT);
     }
 
     @SuppressLint("RtlHardcoded")
@@ -56,11 +54,8 @@ public final class InputDispatcher implements TerminalViewClient {
 
             if (unicodeChar == 'k') {
                 InputMethodManager imm =
-                        (InputMethodManager)
-                                mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.showSoftInput(mActivity.mTerminalView, InputMethodManager.SHOW_IMPLICIT);
-                }
+                        (InputMethodManager) ContextCompat.getSystemService(mActivity, InputMethodManager.class);
+                if (imm != null) imm.showSoftInput(mActivity.mTerminalView, InputMethodManager.SHOW_IMPLICIT);
             } else if (unicodeChar == 'm') {
                 mActivity.mTerminalView.showContextMenu();
             } else if (unicodeChar == 'v') {
@@ -177,12 +172,8 @@ public final class InputDispatcher implements TerminalViewClient {
                 case 'v':
                     resultingCodePoint = -1;
                     AudioManager audio =
-                            (AudioManager) mActivity.getSystemService(Context.AUDIO_SERVICE);
-                    if (audio != null) {
-                        audio.adjustVolume(
-                                AudioManager.ADJUST_SAME,
-                                AudioManager.USE_DEFAULT_STREAM_TYPE);
-                    }
+                            (AudioManager) ContextCompat.getSystemService(mActivity, AudioManager.class);
+                    if (audio != null) audio.adjustVolume(AudioManager.ADJUST_SAME,AudioManager.USE_DEFAULT_STREAM_TYPE);
                     break;
                 case 'k':
                     mVirtualFnKeyDown = false;

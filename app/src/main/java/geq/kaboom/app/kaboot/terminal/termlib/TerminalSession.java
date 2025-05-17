@@ -2,6 +2,7 @@ package geq.kaboom.app.kaboot.terminal.termlib;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.system.ErrnoException;
 import android.system.Os;
@@ -71,7 +72,7 @@ public final class TerminalSession extends TerminalOutput {
     public String mSessionName;
 
     @SuppressLint("HandlerLeak")
-    final Handler mMainThreadHandler = new Handler() {
+    final Handler mMainThreadHandler = new Handler(Looper.getMainLooper()) {
         final byte[] mReceiveBuffer = new byte[4 * 1024];
 
         @Override

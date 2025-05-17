@@ -8,10 +8,13 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import geq.kaboom.app.kaboot.KabUtil;
@@ -107,7 +110,7 @@ public final class TerminalActivity extends AppCompatActivity {
     }
 
     private void setupTerminalStyle() {
-        float scale = getResources().getDisplayMetrics().scaledDensity;
+     float scale = getResources().getDisplayMetrics().density;
         int defaultFontSize = Math.round(Config.FSCALE * scale);
         if (defaultFontSize % 2 == 1) defaultFontSize--;
 
@@ -115,7 +118,7 @@ public final class TerminalActivity extends AppCompatActivity {
             currentFontSize = defaultFontSize;
         }
 
-        minFontSize = (int) ((Config.FSCALE - 5) * scale);
+        minFontSize = (int) ((Config.FSCALE - 7) * scale);
         currentFontSize = Math.max(minFontSize, Math.min(currentFontSize, Config.MAX_FONTSIZE));
         mTerminalView.setTextSize(currentFontSize);
 

@@ -475,10 +475,7 @@ public final class TerminalView extends View {
             return true;
         } else if (event.isSystem() && (keyCode != KeyEvent.KEYCODE_BACK)) {
             return super.onKeyDown(keyCode, event);
-        } else if (event.getAction() == KeyEvent.ACTION_MULTIPLE && keyCode == KeyEvent.KEYCODE_UNKNOWN) {
-            mTermSession.write(event.getCharacters());
-            return true;
-        }
+        } else if (keyCode == KeyEvent.KEYCODE_UNKNOWN) return true;
 
         final int metaState = event.getMetaState();
         final boolean controlDown = event.isCtrlPressed() || mClient.readControlKey();

@@ -10,9 +10,9 @@ public class Config {
 
   public static boolean refreshList = false;
             
-  public final static int MAX_FONTSIZE = 256;
+  public final static int MAX_FONTSIZE = 210;
   
-  public final static float FSCALE = 12f;
+  public final static float FSCALE = 15f;
     
   public final static String TERM_BG = "#101010";
   

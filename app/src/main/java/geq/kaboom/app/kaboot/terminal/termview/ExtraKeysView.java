@@ -162,11 +162,7 @@ public final class ExtraKeysView extends GridLayout {
 
                 final Button finalButton = button;
                 button.setOnClickListener(v -> {
-
-                    if (Settings.System.getInt(getContext().getContentResolver(),
-                        Settings.System.HAPTIC_FEEDBACK_ENABLED, 0) != 0) {
                         finalButton.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
-                    }
 
                     View root = getRootView();
 

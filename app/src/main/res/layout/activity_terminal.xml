@@ -35,6 +35,7 @@
             android:layout_marginRight="@dimen/_3sdp"
             android:layout_marginLeft="@dimen/_3sdp"
             android:focusableInTouchMode="true"
+            android:defaultFocusHighlightEnabled="false"
             android:scrollbarThumbVertical="@drawable/terminal_scroll_shape"
             android:scrollbars="vertical"
             android:importantForAutofill="no"
