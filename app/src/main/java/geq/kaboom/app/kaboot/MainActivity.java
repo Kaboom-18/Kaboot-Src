@@ -216,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 processes.forEach((process)-> names.add(process.get("name")));
+                if(!names.isEmpty()){
                 new MaterialAlertDialogBuilder(this)
                         .setTitle("Kill a running process")
                         .setItems(names.toArray(new String[0]), (dialog, which) -> {
@@ -226,6 +227,9 @@ public class MainActivity extends AppCompatActivity {
                                                 + "] with pid [" + processes.get(which).get("pid") + "]");
                                  }
                         }).show();
+                        }else{
+                            util.toast("No running processes found!");
+                        }
     }
 
     @Override
@@ -283,7 +287,7 @@ new Thread(() -> {
         } else {
             Config.UI.post(()->{
                 dialog.dismiss();
-               util.toast("Version check Success.");
+                util.toast("Version check successful.");
             });
         }
     } catch (Exception e) {
