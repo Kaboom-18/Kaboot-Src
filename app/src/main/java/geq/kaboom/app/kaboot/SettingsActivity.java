@@ -100,9 +100,8 @@ public class SettingsActivity extends AppCompatActivity {
                 "More about this application.",
                 (t, d) -> {
                     new Thread(()->{
-                    String about = util.fetch(Config.ABOUTURL);
-                    about = about.replace("\\n", "\n");
-                   Config.UI.post(()->util.showDialog("About Us", about!=null?about:"Couldn't fetch!"));
+                   final String about = util.fetch(Config.ABOUTURL);
+                   Config.UI.post(()->util.showDialog("About Us", about!=null?about.replace("\\n", "\n"):"Couldn't fetch!"));
                    }).start();
                 }));
 
