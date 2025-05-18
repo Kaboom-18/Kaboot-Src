@@ -15,7 +15,7 @@ for arch in "${ARCHS[@]}"; do
  wget "${REPO}/p/proot/${PROOT}${arch}.deb" -P $TMP
  dpkg-deb -x "${TMP}/${PROOT}${arch}.deb" $TMP
  mv "${TMP}/${PREFIX}/bin/proot" "${OUTPUT}/${arch}/libkaboot.so"
- patchelf --replace-needed "libtalloc.so.2" "libkbm.so" "${OUTPUT}/${arch}/libkaboot.so"
+ patchelf --replace-needed "libtalloc.so.2" "libkabootoc.so" "${OUTPUT}/${arch}/libkaboot.so"
  mv "${TMP}/${PREFIX}/libexec/proot/loader" "${OUTPUT}/${arch}/libkabooter.so"
  mv "${TMP}/${PREFIX}/libexec/proot/loader32" "${OUTPUT}/${arch}/libkabooter32.so"
 
