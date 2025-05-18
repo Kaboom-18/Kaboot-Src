@@ -98,7 +98,12 @@ public class SettingsActivity extends AppCompatActivity {
         settings.add(new SettingItem(
                 "About us",
                 "More about this application.",
-                (t, d) -> util.showDialog("About Us", Config.ABOUTUS)));
+                (t, d) -> {
+                    new Thread(()->{
+                    String about = util.fetch(Config.ABOUTURL);
+                   Config.UI.post(()->util.showDialog("About Us", about!=null?about:"Couldn't fetch!"));
+                   }).start();
+                }));
 
         list.setAdapter(new SettingsAdapter(settings));
     }

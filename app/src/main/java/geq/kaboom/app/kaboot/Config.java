@@ -21,10 +21,12 @@ public class Config {
   public final static int REFRESH_CODE = 0;
   
   public final static int PKG_REFRESH_CODE = 1;
+    
+  public final static String MAINURL = "https://raw.githubusercontent.com/Kaboom-18/Kaboot/refs/heads/main";
   
-  public final static String REPOURL = "https://raw.githubusercontent.com/Kaboom-18/Kaboot/refs/heads/main/Packages.json";
+  public final static String REPOURL = MAINURL+"/Packages.json";
   
-  public final static String ABOUTUS = "Kaboot is a robust Linux emulation application developed by Kaboom, enabling a full Linux environment on Android devices—no root access required. It supports the latest Android versions and is specifically engineered to bypass W^X (Write XOR Execute) restrictions, ensuring maximum compatibility and stability. Users can also use their custom repositories to run their own Linux or shell-based applications.\n\n•Facebook\n-KA Boom \n\n•Email\n-Kaboomofficial18@gmail.com";
+  public final static String ABOUTURL = MAINURL+"/AboutUs";
   
   public final static String EMAIL= "kaboomofficial18@gmail.com";
   

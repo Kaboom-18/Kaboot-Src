@@ -1,0 +1,14 @@
+This app uses code from the following sources:
+
+Termux: https://github.com/termux/termux-app
+
+vmConsole: https://github.com/markbirss/vmConsole
+
+PRoot: https://github.com/proot-me/proot
+
+Termux’s PRoot fork: https://github.com/termux/proot
+
+libtalloc: https://talloc.samba.org/talloc/doc/html/index.html
+
+
+All projects are licensed under GPLv3 or compatible licenses
