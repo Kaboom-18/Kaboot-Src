@@ -75,13 +75,13 @@ public class MainActivity extends AppCompatActivity {
         list.setAdapter(adapter);
 
         //debug permission remove in release
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(
                         this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
             }
-        }
+        }*/
 
         install.setOnClickListener(v -> showInstallDialog());
 
