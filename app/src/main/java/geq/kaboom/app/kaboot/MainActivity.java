@@ -3,7 +3,9 @@ package geq.kaboom.app.kaboot;
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -60,9 +62,12 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         
         setSupportActionBar(toolbar);
+        
+        util = new KabUtil(this);
+        
+        checkVersion();
 
         PATH = new File(getFilesDir(), "Packages");
-        util = new KabUtil(this);
         config = getSharedPreferences("Configuration", MODE_PRIVATE);
         adapter = new ListAdapter(data, list, warn);
         
@@ -122,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
             String content;
             if((content = util.fetch(config.getString("repo", Config.REPOURL))) != null){
             try {
-                JSONArray resp = new JSONArray(content);
+                JSONArray resp = new JSONArray(content.trim());
 
                 for (int i = 0; i < resp.length(); i++) {
                    HashMap<String, Object> p = new HashMap<>();
@@ -241,4 +246,53 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+public void checkVersion(){
+ AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+    .setTitle("Checking Version")
+    .setMessage("Please wait...")
+    .setCancelable(false)
+    .create();
+
+dialog.show();
+
+new Thread(() -> {
+    final String versionRaw = util.fetch(Config.VERSIONURL);
+    if (versionRaw == null) {
+    Config.UI.post(() -> {
+            dialog.dismiss();
+            util.toast("Failed to check version!");
+        });
+        return;
+    }
+    try {
+        String currentVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+
+        if (!currentVersion.equals(versionRaw.trim()) || !getPackageName().equals(Config.PACKAGE_NAME)) {
+            String downloadUrl = util.fetch(Config.DOWNLOADURL);
+
+            Config.UI.post(() -> {
+                dialog.dismiss();
+                util.toast("Install the latest version!");
+                if (downloadUrl != null) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl));
+                    startActivity(intent);
+                    finishAffinity();
+                }
+            });
+        } else {
+            Config.UI.post(()->{
+                dialog.dismiss();
+               util.toast("Version check Success.");
+            });
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        runOnUiThread(() -> {
+            dialog.dismiss();
+            util.toast("Version check failed!");
+        });
+    }
+}).start();
+}
 }

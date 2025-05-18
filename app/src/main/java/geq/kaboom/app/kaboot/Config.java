@@ -27,6 +27,12 @@ public class Config {
   public final static String REPOURL = MAINURL+"/Packages.json";
   
   public final static String ABOUTURL = MAINURL+"/AboutUs";
+    
+  public final static String VERSIONURL = MAINURL+"/LatestAppVersion";
+    
+  public final static String DOWNLOADURL = MAINURL+"/DownloadLink";
+    
+  public final static String PACKAGE_NAME = "geq.kaboom.app.kaboot";
   
   public final static String EMAIL= "kaboomofficial18@gmail.com";
   
