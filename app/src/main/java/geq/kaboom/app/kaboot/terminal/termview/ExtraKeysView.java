@@ -15,6 +15,7 @@ import android.widget.GridLayout;
 import android.widget.PopupWindow;
 import android.widget.ToggleButton;
 
+import geq.kaboom.app.kaboot.utils.Config;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -152,12 +153,21 @@ public final class ExtraKeysView extends GridLayout {
                 }
 
                 button.setText(buttonText);
+                try{
                 button.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "terminal.ttf"));
+                }catch(Exception e){
+                    button.setTypeface(Typeface.MONOSPACE);
+                }
                 button.setTextColor(TEXT_COLOR);
                 button.setPadding(0, 0, 0, 0);
+                
+                //Dynamic font size for extra keys
+                float scale = getResources().getDisplayMetrics().density;
+                int defaultFS = Math.round(Config.FESCALE * scale);
+                button.setTextSize(defaultFS);
 
                 if ("↑←↓→".contains(buttonText)) {
-                    button.setTextSize(17);
+                    button.setTextSize(defaultFS+5);
                 }
 
                 final Button finalButton = button;

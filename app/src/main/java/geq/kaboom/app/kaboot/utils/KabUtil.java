@@ -1,9 +1,15 @@
-package geq.kaboom.app.kaboot;
+package geq.kaboom.app.kaboot.utils;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.system.Os;
 import android.system.OsConstants;
 import android.widget.TextView;
@@ -33,19 +39,19 @@ public class KabUtil {
   }
 
   public String fetch(String urlString) {
-      String result = null;
-      try{
-    StringBuilder content = new StringBuilder();
-    HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection();
-    connection.setRequestMethod("GET");
-    connection.setRequestProperty("Accept", "application/json");
+    String result = null;
+    try {
+      StringBuilder content = new StringBuilder();
+      HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection();
+      connection.setRequestMethod("GET");
+      connection.setRequestProperty("Accept", "application/json");
 
-    int responseCode = connection.getResponseCode();
-    if (responseCode != HttpURLConnection.HTTP_OK) {
-      throw new IOException("HTTP request failed with code: " + responseCode);
-    }
+      int responseCode = connection.getResponseCode();
+      if (responseCode != HttpURLConnection.HTTP_OK) {
+        throw new IOException("HTTP request failed with code: " + responseCode);
+      }
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+      BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
         content.append(inputLine);
@@ -53,8 +59,8 @@ public class KabUtil {
       in.close();
       connection.disconnect();
       result = content.toString();
-    }catch(Exception e){
-        return null;
+    } catch (Exception e) {
+      return null;
     }
     return result;
   }
@@ -78,8 +84,8 @@ public class KabUtil {
   }
 
   public boolean renameFile(String path, String name) {
-      if(!isExistFile(path)) return false;
-      File file = new File(path);
+    if (!isExistFile(path)) return false;
+    File file = new File(path);
     return file.renameTo(new File(file.getParent(), name));
   }
 
@@ -99,14 +105,14 @@ public class KabUtil {
     deleteFile(path);
     makeDir(path);
   }
-    
-  public void resetFile(String path){
-      deleteFile(path);
-      createNewFile(path);
+
+  public void resetFile(String path) {
+    deleteFile(path);
+    createNewFile(path);
   }
-    
-  public String getLastPath(String path){
-      return Uri.parse(path).getLastPathSegment();
+
+  public String getLastPath(String path) {
+    return Uri.parse(path).getLastPathSegment();
   }
 
   public boolean writeFile(String path, String content) {
@@ -129,8 +135,8 @@ public class KabUtil {
       while ((line = br.readLine()) != null) {
         sb.append(line).append('\n');
       }
-    }catch(Exception e){
-        return null;
+    } catch (Exception e) {
+      return null;
     }
 
     return sb.toString().trim();
@@ -147,7 +153,7 @@ public class KabUtil {
       String line;
       while ((line = reader.readLine()) != null) {
         String[] parts = line.trim().split("\\s+", 4);
-        if(parts[1].equals(String.valueOf(Os.getpid()))) continue;
+        if (parts[1].equals(String.valueOf(Os.getpid()))) continue;
         if (parts.length == 4) {
           HashMap<String, String> map = new HashMap<>();
           map.put("pid", parts[0]);
@@ -206,7 +212,29 @@ public class KabUtil {
   public void copy(String content) {
     ClipboardManager clipboard = ContextCompat.getSystemService(context, ClipboardManager.class);
     if (clipboard == null) return;
-      clipboard.setPrimaryClip(new ClipData(null, new String[] {"text/plain"}, new ClipData.Item(content)));
-      toast("Copied to clipboard!");
+    clipboard.setPrimaryClip(
+        new ClipData(null, new String[] {"text/plain"}, new ClipData.Item(content)));
+    toast("Copied to clipboard!");
+  }
+
+  public float getScale() {
+    return context.getResources().getDisplayMetrics().density;
+  }
+
+  public void showPermissionDialog(String message, Intent intent) {
+    new MaterialAlertDialogBuilder(context)
+        .setTitle("Permission Required")
+        .setMessage(message)
+        .setPositiveButton(
+            "Yes",
+            (dialog, which) -> {
+              context.startActivity(intent);
+            })
+        .setNegativeButton(
+            "No",
+            (dialog, which) -> {
+              dialog.dismiss();
+            })
+        .show();
   }
 }

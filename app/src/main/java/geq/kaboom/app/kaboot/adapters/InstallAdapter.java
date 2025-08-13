@@ -1,4 +1,4 @@
-package geq.kaboom.app.kaboot;
+package geq.kaboom.app.kaboot.adapters;
 
 import android.content.Context;
 import android.os.Handler;
@@ -16,6 +16,9 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import geq.kaboom.app.kaboot.utils.KabUtil;
+import geq.kaboom.app.kaboot.R;
+import geq.kaboom.app.kaboot.utils.Config;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -93,7 +96,7 @@ public class InstallAdapter extends RecyclerView.Adapter<InstallAdapter.ViewHold
         
         if(util.isExistFile(pkgPath)){
            holder.log.setVisibility(View.VISIBLE);
-           holder.log.setTextColor(ContextCompat.getColor(context, R.color.error));
+           holder.log.setTextColor(ContextCompat.getColor(context, R.color.md_theme_errorContainer));
            holder.log.setText("A package with a similar name is already installed. Consider deleting it or renaming your package.");
            return;
         }

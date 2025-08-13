@@ -16,9 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:titleTextColor="?attr/colorPrimary"
-            app:navigationIcon="@drawable/ic_terminate"
-            android:background="@color/statusBg"/>
+            app:navigationIcon="@drawable/ic_terminate"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
@@ -32,8 +30,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:layout_marginRight="@dimen/_3sdp"
-            android:layout_marginLeft="@dimen/_3sdp"
             android:focusableInTouchMode="true"
             android:defaultFocusHighlightEnabled="false"
             android:scrollbarThumbVertical="@drawable/terminal_scroll_shape"

@@ -48,7 +48,7 @@ public final class InputDispatcher implements TerminalViewClient {
     public boolean onKeyDown(int keyCode, KeyEvent e, TerminalSession currentSession) {
         if (handleVirtualKeys(keyCode, e, true)) return true;
         if(keyCode == KeyEvent.KEYCODE_BACK){mActivity.onBack(); return true;}
-
+         
         if (e.isCtrlPressed() && e.isAltPressed()) {
             int unicodeChar = e.getUnicodeChar(e.getMetaState());
 

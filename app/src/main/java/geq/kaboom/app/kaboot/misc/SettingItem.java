@@ -1,4 +1,4 @@
-package geq.kaboom.app.kaboot;
+package geq.kaboom.app.kaboot.misc;
 import android.widget.TextView;
 
 public class SettingItem {
@@ -7,7 +7,7 @@ public class SettingItem {
     public String description;
     public itemClicked clicked;
     
-    interface itemClicked{
+    public interface itemClicked{
         void onClick(TextView title, TextView desc);
     }
     public SettingItem(String title, String description, itemClicked clicked) {

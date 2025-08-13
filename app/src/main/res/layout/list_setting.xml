@@ -1,25 +1,28 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/_8sdp"
-    android:layout_margin="@dimen/_2sdp"
-    android:gravity="start|center_vertical"
-    android:background="@drawable/tile">
-
+    android:layout_margin="@dimen/_2sdp">
+    
+ <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+       android:gravity="start|center_vertical"
+        android:padding="@dimen/_8sdp"
+        android:orientation="vertical">
+        
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textSize="@dimen/_14ssp"
-        android:textColor="?android:textColorPrimary"
         android:layout_marginBottom="@dimen/_2sdp" />
 
     <TextView
         android:id="@+id/description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/_6ssp"
-        android:textColor="?android:textColorSecondary" />
+        android:textSize="@dimen/_6ssp" />
 </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

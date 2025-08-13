@@ -1,9 +1,12 @@
-package geq.kaboom.app.kaboot;
+package geq.kaboom.app.kaboot.adapters;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
+import geq.kaboom.app.kaboot.misc.SettingItem;
+import geq.kaboom.app.kaboot.R;
 import java.util.ArrayList;
 
 public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHolder> {

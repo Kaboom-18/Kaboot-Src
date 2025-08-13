@@ -3,9 +3,10 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:width="@dimen/_58sdp"
         android:height="@dimen/_58sdp"
+        android:tint="?attr/colorControlNormal"
         android:viewportWidth="24.0"
         android:viewportHeight="24.0">
     <path
             android:pathData="M12.29 8.71L9.7 11.3a.996.996 0 0 0 0 1.41l2.59 2.59c.63.63 1.71.18 1.71-.71V9.41c0-.89-1.08-1.33-1.71-.7z"
-            android:fillColor="#FFFFFF" />
+            android:fillColor="#000000" />
 </vector>

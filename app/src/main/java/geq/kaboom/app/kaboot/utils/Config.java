@@ -1,4 +1,4 @@
-package geq.kaboom.app.kaboot;
+package geq.kaboom.app.kaboot.utils;
 
 import android.content.Context;
 import android.net.Uri;
@@ -9,12 +9,16 @@ import java.io.File;
 public class Config {
 
   public static boolean refreshList = false;
-            
-  public final static int MAX_FONTSIZE = 210;
   
   public final static float FSCALE = 15f;
     
-  public final static String TERM_BG = "#101010";
+  public final static int MAX_FONT_SIZE = 160;
+    
+  public final static int MIN_FONT_SIZE = 8;
+    
+  public final static float FESCALE = 6f;  
+    
+  public final static String TERM_BG = "#111110";
   
   public final static Handler UI = new Handler(Looper.getMainLooper());
   
@@ -25,8 +29,6 @@ public class Config {
   public final static String MAINURL = "https://raw.githubusercontent.com/Kaboom-18/Kaboot/refs/heads/main";
   
   public final static String REPOURL = MAINURL+"/Packages.json";
-  
-  public final static String ABOUTURL = MAINURL+"/AboutUs";
     
   public final static String VERSIONURL = MAINURL+"/LatestAppVersion";
     
@@ -48,7 +50,7 @@ public class Config {
       return (getFilesDir(context)+File.separator+"Packages"+File.separator+pkgName);
   }
     
-  public static String getPkgName(Context context, String pkgPath){
+  public static String getPkgName(String pkgPath){
       return (Uri.parse(pkgPath).getLastPathSegment());
   }
   
@@ -68,5 +70,4 @@ public class Config {
       final String libdir = getLibsPath(context);
       return (new String[]{"LD_LIBRARY_PATH=" + libdir,"PROOT_LOADER=" + libdir + "/libkabooter.so","PROOT_LOADER_32=" + libdir + "/libkabooter32.so","PROOT_TMP_DIR=" + getTmpDir(context)});
   }
-
 }

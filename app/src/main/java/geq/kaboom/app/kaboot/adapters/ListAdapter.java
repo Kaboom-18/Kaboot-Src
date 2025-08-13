@@ -1,7 +1,8 @@
-package geq.kaboom.app.kaboot;
+package geq.kaboom.app.kaboot.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +12,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import geq.kaboom.app.kaboot.services.PkgService;
+import geq.kaboom.app.kaboot.utils.KabUtil;
+import geq.kaboom.app.kaboot.R;
+import geq.kaboom.app.kaboot.utils.Config;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,7 +61,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         HashMap<String, Object> item = data.get(position);
         String packagePath = item.get("path").toString();
-        String packageName = Config.getPkgName(context, packagePath);
+        String packageName = Config.getPkgName(packagePath);
         
         holder.name.setText(packageName);
         if(item.containsKey("size")){
@@ -73,10 +80,34 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             holder.icon.setVisibility(View.GONE);
             holder.name.setText("Invalid Package!");
         }
-        holder.base.setOnClickListener((v) -> context.startActivity(intent));
+        
+        boolean currentPkg = false;
+        
+        if(packagePath.equals(PkgService.active)){
+            holder.base.setStrokeColor(Color.parseColor("#4CAF50"));
+            currentPkg = true;
+        }else{
+            holder.base.setStrokeColor(Color.parseColor("#F44336"));
+            currentPkg = false;
+        }
+        
+        if(PkgService.active == null) currentPkg = true;
+        
+        final boolean c = currentPkg;
+        holder.base.setOnClickListener((v) -> {
+            if(c){
+            context.startActivity(intent);
+            }else{
+                util.toast("Terminate other running packages first!");
+            }
+                });
         holder.base.setOnLongClickListener((v) -> {
-            if(configContent == null) return true;
+            if(configContent == null){
+            }else if(PkgService.active != null){
+                util.toast("Terminate this package to modify it!");
+            }else{
             showConfigDialog(packagePath, packageName, position);
+            }
             return true;
         });
     }
@@ -118,7 +149,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
                     new MaterialAlertDialogBuilder(context)
                     .setTitle("Are you sure?")
                     .setMessage("Delete "+packageName)
-                    .setPositiveButton("delete", (d, w)-> deletePackage(packagePath, packageName, pos))
+                    .setPositiveButton("Delete", (d, w)-> deletePackage(packagePath, packageName, pos))
                     .setNegativeButton("Cancel", null)
                     .show();
                 })
@@ -151,7 +182,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, size;
         ImageView icon;
-        LinearLayout base;
+        MaterialCardView base;
 
         public ViewHolder(View itemView) {
             super(itemView);

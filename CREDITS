@@ -1,14 +1,13 @@
 This app uses code from the following sources:
 
-Termux: https://github.com/termux/termux-app
+Termux: https://github.com/termux/termux-app (terminal jni .c code)
 
-vmConsole: https://github.com/markbirss/vmConsole
+vmConsole: https://github.com/markbirss/vmConsole (terminal emulator and terminal view)
 
-PRoot: https://github.com/proot-me/proot
+PRoot: https://github.com/proot-me/proot (renamed to libkaboot.so)(renamed to libkabooter.so and libkabooter32.so)
 
-Termux’s PRoot fork: https://github.com/termux/proot
+Termux’s PRoot fork: https://github.com/termux/proot (renamed to libkaboot.so)(renamed to libkabooter.so and libkabooter32.so)
 
-libtalloc: https://talloc.samba.org/talloc/doc/html/index.html
-
+libtalloc: https://talloc.samba.org/talloc/doc/html/index.html (renamed to libkabootoc.so)
 
 All projects are licensed under GPLv3 or compatible licenses

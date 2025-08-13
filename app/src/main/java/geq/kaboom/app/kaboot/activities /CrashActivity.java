@@ -1,6 +1,8 @@
-package geq.kaboom.app.kaboot;
+package geq.kaboom.app.kaboot.activities;
 
 import android.content.Intent;
+import geq.kaboom.app.kaboot.utils.KabUtil;
+import geq.kaboom.app.kaboot.utils.Config;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
