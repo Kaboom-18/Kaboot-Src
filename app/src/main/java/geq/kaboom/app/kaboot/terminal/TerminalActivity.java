@@ -128,7 +128,7 @@ public final class TerminalActivity extends AppCompatActivity implements Service
         || currentFontSize > Config.MAX_FONT_SIZE
         || currentFontSize < Config.MIN_FONT_SIZE) {
       // dynamic fontsize
-      currentFontSize = Math.round(Config.FSCALE * util.getScale());
+      currentFontSize = util.getDefaultFontSize();
     }
     mTerminalView.setTextSize(currentFontSize);
     try {

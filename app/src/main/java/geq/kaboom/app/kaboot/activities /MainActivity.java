@@ -57,28 +57,27 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
+    
     list = findViewById(R.id.list);
     warn = findViewById(R.id.warn);
     base = findViewById(R.id.base);
     install = findViewById(R.id.install);
     toolbar = findViewById(R.id.toolbar);
+    
+    config = getSharedPreferences("Configuration", MODE_PRIVATE);
+    util = new KabUtil(this);
+    PATH = new File(getFilesDir(), "Packages");
+    adapter = new ListAdapter(data, list, warn);
 
     setSupportActionBar(toolbar);
-
-    util = new KabUtil(this);
-
-    PATH = new File(getFilesDir(), "Packages");
-    config = getSharedPreferences("Configuration", MODE_PRIVATE);
-    adapter = new ListAdapter(data, list, warn);
 
     list.setLayoutManager(new LinearLayoutManager(this));
     list.setAdapter(adapter);
 
     install.setOnClickListener(v -> showInstallDialog());
-
+    
     base.setOnRefreshListener(() -> refresh());
-
+    
     if (config.getBoolean("permission", true)) {
       setupAllPermissions();
     }
@@ -86,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
     if (config.getBoolean("version", true)) {
       checkVersion();
     }
+    
   }
 
   private void showInstallDialog() {
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView installList = new RecyclerView(this);
     installList.setPadding(7, 14, 7, 14);
     installList.setLayoutManager(new LinearLayoutManager(this));
-    builder.setTitle("Install a package..");
+    builder.setTitle("Install a package");
     builder.setView(installList);
     AlertDialog dialog = builder.create();
     installList.setAdapter(new InstallAdapter(dialog, indata));
@@ -267,8 +267,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void checkVersion() {
-    AlertDialog dialog =
-        new MaterialAlertDialogBuilder(this)
+    AlertDialog dialog = new MaterialAlertDialogBuilder(this)
             .setTitle("Checking Version")
             .setMessage("Please wait...")
             .setCancelable(false)
@@ -276,53 +275,44 @@ public class MainActivity extends AppCompatActivity {
 
     dialog.show();
 
-    new Thread(
-            () -> {
-              final String versionRaw = util.fetch(Config.VERSIONURL);
-              if (versionRaw == null) {
-                Config.UI.post(
-                    () -> {
-                      dialog.dismiss();
-                      util.toast("Failed to check version!");
-                    });
+    new Thread(() -> {
+        final String versionRaw = util.fetch(Config.VERSIONURL);
+        Config.UI.post(() -> {
+            if (versionRaw == null) {
+                if (dialog.isShowing() && !isFinishing()) dialog.dismiss();
+                util.toast("Failed to check version!");
                 return;
-              }
-              try {
+            }
+
+            try {
                 String currentVersion =
-                    getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                        getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 
                 if (!currentVersion.equals(versionRaw.trim())
-                    || !getPackageName().equals(Config.PACKAGE_NAME)) {
-                  String downloadUrl = util.fetch(Config.DOWNLOADURL);
+                        || !getPackageName().equals(Config.PACKAGE_NAME)) {
 
-                  Config.UI.post(
-                      () -> {
-                        dialog.dismiss();
-                        util.toast("Install the latest version!");
-                        if (downloadUrl != null) {
-                          Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl));
-                          startActivity(intent);
-                          finishAffinity();
-                        }
-                      });
+                    String downloadUrl = util.fetch(Config.DOWNLOADURL);
+
+                    if (dialog.isShowing() && !isFinishing()) dialog.dismiss();
+                    util.toast("Install the latest version!");
+
+                    if (downloadUrl != null) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl));
+                        startActivity(intent);
+                        finishAffinity();
+                    }
                 } else {
-                  Config.UI.post(
-                      () -> {
-                        dialog.dismiss();
-                        util.toast("Version check successful.");
-                      });
+                    if (dialog.isShowing() && !isFinishing()) dialog.dismiss();
+                    util.toast("Version check successful!");
                 }
-              } catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(
-                    () -> {
-                      dialog.dismiss();
-                      util.toast("Version check failed!");
-                    });
-              }
-            })
-        .start();
-  }
+                if (dialog.isShowing() && !isFinishing()) dialog.dismiss();
+                util.toast("Version check failed!");
+            }
+        });
+    }).start();
+}
 
   public void setupAllPermissions() {
     // 1️⃣ Notification permission (Android 13+)

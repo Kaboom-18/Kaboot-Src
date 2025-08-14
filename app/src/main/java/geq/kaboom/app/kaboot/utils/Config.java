@@ -15,9 +15,7 @@ public class Config {
   public final static int MAX_FONT_SIZE = 160;
     
   public final static int MIN_FONT_SIZE = 8;
-    
-  public final static float FESCALE = 6f;  
-    
+  
   public final static String TERM_BG = "#111110";
   
   public final static Handler UI = new Handler(Looper.getMainLooper());

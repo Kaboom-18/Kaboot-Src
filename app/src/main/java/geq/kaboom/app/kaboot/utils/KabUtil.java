@@ -12,6 +12,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.system.Os;
 import android.system.OsConstants;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -178,7 +179,7 @@ public class KabUtil {
   }
 
   public void showDialog(String title, String content) {
-    new MaterialAlertDialogBuilder(context).setTitle(title).setMessage(content).show();
+    new MaterialAlertDialogBuilder(context).setTitle(title).setMessage(content).setPositiveButton("Close", (d, w)-> d.dismiss()).show();
   }
 
   public String getFolderSize(File file) {
@@ -217,10 +218,14 @@ public class KabUtil {
     toast("Copied to clipboard!");
   }
 
-  public float getScale() {
-    return context.getResources().getDisplayMetrics().density;
+  public int getDefaultFontSize() {
+    return Math.round(context.getResources().getDisplayMetrics().density * Config.FSCALE);
   }
-
+    
+   public static int getDefaultFontSize(View view) {
+    return Math.round(view.getResources().getDisplayMetrics().density * Config.FSCALE);
+  }
+    
   public void showPermissionDialog(String message, Intent intent) {
     new MaterialAlertDialogBuilder(context)
         .setTitle("Permission Required")

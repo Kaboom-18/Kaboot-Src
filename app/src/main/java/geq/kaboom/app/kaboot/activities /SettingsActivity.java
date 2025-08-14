@@ -1,18 +1,23 @@
 package geq.kaboom.app.kaboot.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Process;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.color.DynamicColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import geq.kaboom.app.kaboot.utils.KabUtil;
 import geq.kaboom.app.kaboot.utils.Config;
 import geq.kaboom.app.kaboot.misc.SettingItem;
@@ -41,15 +46,40 @@ public class SettingsActivity extends AppCompatActivity {
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     config = getSharedPreferences("Configuration", MODE_PRIVATE);
+    configEditor = config.edit();
+    util = new KabUtil(this);
     params =
         new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-    configEditor = config.edit();
-    util = new KabUtil(this);
 
     list.setLayoutManager(new LinearLayoutManager(this));
 
     ArrayList<SettingItem> settings = new ArrayList<>();
+
+    settings.add(
+        new SettingItem(
+            getThemeLabel(config.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)),
+            "Switch between Light, Dark, and System default theme.",
+            (t, d) -> {
+              int newMode = cycleTheme();
+              AppCompatDelegate.setDefaultNightMode(newMode);
+              updateSettingText(t, newMode);
+              util.toast("Theme switched to " + getThemeLabel(newMode));
+            }));
+
+    settings.add(
+        new SettingItem(
+            config.getBoolean("dynamic_colors", false)
+                ? "Dynamic Colors: Enabled"
+                : "Dynamic Colors: Disabled",
+            "Toggle Dynamic Colors.",
+            (t, d) -> {
+              boolean enabled = !config.getBoolean("dynamic_colors", false);
+              configEditor.putBoolean("dynamic_colors", enabled).apply();
+              t.setText(enabled ? "Dynamic Colors: Enabled" : "Dynamic Colors: Disabled");
+              util.toast(enabled ? "Dynamic Colors Enabled!" : "Dynamic Colors Disabled!");
+              util.toast("Restart application for changes!");
+            }));
 
     settings.add(
         new SettingItem(
@@ -81,59 +111,54 @@ public class SettingsActivity extends AppCompatActivity {
             "Define the default font size to be used in the terminal; it can be changed by resizing the screen.",
             (t, d) -> showNumberInputDialog("Font Size", "fontSize", "Enter font size")));
 
-    settings.add(
-        new SettingItem(
-            config.getBoolean("size", false) ? "Hide package size" : "Show package size",
-            "Specify whether the package should display its size. Showing size may increase refreshing time.",
-            (t, d) -> {
-              boolean newState = !config.getBoolean("size", false);
-              configEditor.putBoolean("size", newState).apply();
-              util.toast(newState ? "Package Size Shown!" : "Package Size Hidden!");
-              t.setText(newState ? "Hide package size" : "Show package size");
-            }));
+    addToggleSetting(settings, "pkgSize", "Show Package Size", false);
+
+    addToggleSetting(settings, "permission", "Ask Permissions On StartUp", true);
+
+    addToggleSetting(settings, "version", "Check Latest Version On StartUp", true);
 
     settings.add(
         new SettingItem(
-            config.getBoolean("permission", true)
-                ? "Skip permission onStartUp"
-                : "Ask permission onStartUp",
-            "Specify whether the application should ask for runtime permissions on app startup.",
-            (t, d) -> {
-              boolean newState = !config.getBoolean("permission", true);
-              configEditor.putBoolean("permission", newState).apply();
-              util.toast(
-                  newState ? "Ask's Permissions onStartUp!" : "Skips Permissions onStartUp!");
-              t.setText(newState ? "Skip permission onStartUp" : "Ask permission onStartUp");
-            }));
-
-    settings.add(
-        new SettingItem(
-            config.getBoolean("version", true)
-                ? "Skip versionCheck onStartUp"
-                : "Perform versionCheck onStartUp",
-            "Specify whether the application should search for latest version on app startup. (recommended!)",
-            (t, d) -> {
-              boolean newState = !config.getBoolean("version", true);
-              configEditor.putBoolean("version", newState).apply();
-              util.toast(
-                  newState ? "Perform VersionCheck onStartUp!" : "Skips VersionCheck onStartUp!");
-              t.setText(
-                  newState ? "Skip versionCheck onStartUp" : "Perform versionCheck onStartUp");
-            }));
-
-    settings.add(
-        new SettingItem(
-            "Clear Tmp",
+            "Clear Temp",
             "Clears application temporary files and package tmp directories.",
-            (t, d) -> {
-              if (util.deleteFile(Config.getTmpDir(this))) {
-                util.toast("Cache cleared!");
-              } else {
-                util.toast("Failed to clear tmp!");
-              }
-            }));
+            (t, d) ->
+                util.toast(
+                    util.deleteFile(Config.getTmpDir(this))
+                        ? "Cache cleared!"
+                        : "Failed to clear tmp!")));
 
     list.setAdapter(new SettingsAdapter(settings));
+  }
+
+  private int cycleTheme() {
+    int current = config.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+    int next;
+    switch (current) {
+      case AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:
+        next = AppCompatDelegate.MODE_NIGHT_NO;
+        break;
+      case AppCompatDelegate.MODE_NIGHT_NO:
+        next = AppCompatDelegate.MODE_NIGHT_YES;
+        break;
+      case AppCompatDelegate.MODE_NIGHT_YES:
+      default:
+        next = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+        break;
+    }
+    configEditor.putInt("theme", next).apply();
+    return next;
+  }
+
+  private void updateSettingText(TextView textView, int mode) {
+    textView.setText(getThemeLabel(mode));
+  }
+
+  private void toggleBooleanSetting(
+      String key, TextView textView, String trueMsg, String falseMsg) {
+    boolean newState = !config.getBoolean(key, false);
+    configEditor.putBoolean(key, newState).apply();
+    textView.setText(newState ? trueMsg : falseMsg);
+    util.toast(newState ? trueMsg : falseMsg);
   }
 
   private void showTextInputDialog(
@@ -142,6 +167,7 @@ public class SettingsActivity extends AppCompatActivity {
     input.setText(config.getString(key, ""));
     input.setHint(hint);
     input.setLayoutParams(params);
+
     LinearLayout container = new LinearLayout(this);
     container.setPadding(36, 8, 36, 8);
     container.addView(input);
@@ -154,17 +180,10 @@ public class SettingsActivity extends AppCompatActivity {
             "OK",
             (dialog, which) -> {
               String value = input.getText().toString().trim();
-              if (!value.isEmpty()) {
-                configEditor.putString(key, value).apply();
-              } else {
-                configEditor.remove(key).apply();
-              }
+              if (!value.isEmpty()) configEditor.putString(key, value).apply();
+              else configEditor.remove(key).apply();
             })
-        .setNegativeButton(
-            "Reset",
-            (dialog, which) -> {
-              configEditor.remove(key).apply();
-            })
+        .setNegativeButton("Reset", (dialog, which) -> configEditor.remove(key).apply())
         .show();
   }
 
@@ -175,6 +194,7 @@ public class SettingsActivity extends AppCompatActivity {
     input.setText(defaultValue != -1 ? String.valueOf(defaultValue) : "");
     input.setHint(hint);
     input.setLayoutParams(params);
+
     LinearLayout container = new LinearLayout(this);
     container.setPadding(36, 8, 36, 8);
     container.addView(input);
@@ -186,12 +206,37 @@ public class SettingsActivity extends AppCompatActivity {
             "OK",
             (dialog, which) -> {
               String value = input.getText().toString().trim();
-              if (!value.isEmpty()) {
-                configEditor.putInt(key, Integer.parseInt(value)).apply();
-              }
+              if (!value.isEmpty()) configEditor.putInt(key, Integer.parseInt(value)).apply();
             })
         .setNegativeButton("Reset", (dialog, which) -> configEditor.remove(key).apply())
         .show();
+  }
+
+  private String getThemeLabel(int mode) {
+    switch (mode) {
+      case AppCompatDelegate.MODE_NIGHT_NO:
+        return "Light Theme";
+      case AppCompatDelegate.MODE_NIGHT_YES:
+        return "Dark Theme";
+      case AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:
+      default:
+        return "System Default";
+    }
+  }
+
+  private void addToggleSetting(
+      ArrayList<SettingItem> settings, String key, String label, boolean defaultValue) {
+    boolean enabled = config.getBoolean(key, defaultValue);
+    settings.add(
+        new SettingItem(
+            label + ": " + (enabled ? "Enabled" : "Disabled"),
+            "Toggle " + label+".",
+            (t, d) -> {
+              boolean newState = !config.getBoolean(key, defaultValue);
+              configEditor.putBoolean(key, newState).apply();
+              t.setText(label + ": " + (newState ? "Enabled" : "Disabled"));
+              util.toast(label + (newState ? " Enabled" : " Disabled"));
+            }));
   }
 
   @Override
