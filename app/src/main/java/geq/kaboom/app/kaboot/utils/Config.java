@@ -32,9 +32,11 @@ public class Config {
     
   public final static String DOWNLOADURL = MAINURL+"/DownloadLink";
     
+  public final static String WEBSITE = MAINURL+"/WebsiteUrl";
+    
   public final static String PACKAGE_NAME = "geq.kaboom.app.kaboot";
   
-  public final static String EMAIL= "kaboomofficial18@gmail.com";
+  public final static String EMAIL = "kaboomofficial18@gmail.com";
   
   public static String getTmpDir(Context context){
       return (context.getCacheDir().getAbsolutePath());

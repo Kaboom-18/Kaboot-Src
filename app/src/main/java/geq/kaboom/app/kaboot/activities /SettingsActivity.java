@@ -2,6 +2,7 @@ package geq.kaboom.app.kaboot.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Process;
 import android.view.MenuItem;
@@ -127,6 +128,24 @@ public class SettingsActivity extends AppCompatActivity {
                         ? "Cache cleared!"
                         : "Failed to clear tmp!")));
 
+    settings.add(
+        new SettingItem(
+            "About Us",
+            "Visit our website.",
+            (t, d) -> {
+              new Thread(
+                      () -> {
+                        String url = util.fetch(Config.WEBSITE);
+                        if (url == null) return;
+                        Config.UI.post(
+                            () -> {
+                              Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                              startActivity(intent);
+                            });
+                      })
+                  .start();
+            }));
+
     list.setAdapter(new SettingsAdapter(settings));
   }
 
@@ -230,7 +249,7 @@ public class SettingsActivity extends AppCompatActivity {
     settings.add(
         new SettingItem(
             label + ": " + (enabled ? "Enabled" : "Disabled"),
-            "Toggle " + label+".",
+            "Toggle " + label + ".",
             (t, d) -> {
               boolean newState = !config.getBoolean(key, defaultValue);
               configEditor.putBoolean(key, newState).apply();
