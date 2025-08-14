@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     if (dialog.isShowing() && !isFinishing()) dialog.dismiss();
-                    util.toast("Version check successfull!");
+                    util.toast("Version check successful!");
                 }
             } catch (Exception e) {
                 e.printStackTrace();

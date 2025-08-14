@@ -65,7 +65,7 @@ public class SettingsActivity extends AppCompatActivity {
               int newMode = cycleTheme();
               AppCompatDelegate.setDefaultNightMode(newMode);
               updateSettingText(t, newMode);
-              util.toast("Theme switched to " + getThemeLabel(newMode));
+              util.toast("Theme switched to " + getThemeLabel(newMode)+"!");
             }));
 
     settings.add(
@@ -130,7 +130,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     settings.add(
         new SettingItem(
-            "About Us",
+            "More About Us",
             "Visit our website.",
             (t, d) -> {
               new Thread(
