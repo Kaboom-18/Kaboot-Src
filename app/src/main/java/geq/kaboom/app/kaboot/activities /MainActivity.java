@@ -277,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
 
     new Thread(() -> {
         final String versionRaw = util.fetch(Config.VERSIONURL);
+        final String downloadUrl = util.fetch(Config.DOWNLOADURL);
         Config.UI.post(() -> {
             if (versionRaw == null) {
                 if (dialog.isShowing() && !isFinishing()) dialog.dismiss();
@@ -291,11 +292,9 @@ public class MainActivity extends AppCompatActivity {
                 if (!currentVersion.equals(versionRaw.trim())
                         || !getPackageName().equals(Config.PACKAGE_NAME)) {
 
-                    String downloadUrl = util.fetch(Config.DOWNLOADURL);
-
                     if (dialog.isShowing() && !isFinishing()) dialog.dismiss();
                     util.toast("Install the latest version!");
-
+                    
                     if (downloadUrl != null) {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl));
                         startActivity(intent);

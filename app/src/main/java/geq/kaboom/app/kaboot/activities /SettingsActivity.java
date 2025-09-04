@@ -135,7 +135,7 @@ public class SettingsActivity extends AppCompatActivity {
             (t, d) -> {
               new Thread(
                       () -> {
-                        String url = util.fetch(Config.WEBSITE);
+                        String url = util.fetch(Config.WEBSITEURL);
                         if (url == null) return;
                         Config.UI.post(
                             () -> {

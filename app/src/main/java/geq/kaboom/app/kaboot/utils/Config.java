@@ -16,7 +16,7 @@ public class Config {
     
   public final static int MIN_FONT_SIZE = 8;
   
-  public final static String TERM_BG = "#111110";
+  public final static String TERM_BG = "#000000";
   
   public final static Handler UI = new Handler(Looper.getMainLooper());
   
@@ -30,9 +30,9 @@ public class Config {
     
   public final static String VERSIONURL = MAINURL+"/LatestAppVersion";
     
-  public final static String DOWNLOADURL = MAINURL+"/DownloadLink";
+  public final static String WEBSITEURL = MAINURL+"/WebsiteUrl";
     
-  public final static String WEBSITE = MAINURL+"/WebsiteUrl";
+  public final static String DOWNLOADURL = MAINURL+"/DownloadLink";  
     
   public final static String PACKAGE_NAME = "geq.kaboom.app.kaboot";
   
