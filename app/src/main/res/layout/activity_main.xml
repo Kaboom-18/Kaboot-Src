@@ -52,7 +52,7 @@
         android:visibility="gone"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_margin="@dimen/_16sdp"
+        android:layout_margin="@dimen/_22sdp"
         android:text="New package"
         android:id="@+id/install"
         android:layout_gravity="right|bottom" />

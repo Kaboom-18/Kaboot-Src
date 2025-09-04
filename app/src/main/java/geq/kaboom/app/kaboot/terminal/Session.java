@@ -53,6 +53,8 @@ public class Session {
     cmd.add("--ashmem-memfd");
     cmd.add("--sysvipc");
     cmd.add("-b");
+    cmd.add(Config.getKabmem(context)+":/.kaboot/libkabmem.so");
+    cmd.add("-b");
     cmd.add("/dev");
     cmd.add("-b");
     cmd.add("/proc");
@@ -79,6 +81,7 @@ public class Session {
     for (int i = 0; i < variables.length(); i++) {
       cmd.add(variables.getString(i));
     }
+    cmd.add("LD_PRELOAD=/.kaboot/libkabmem.so");
 
     final JSONArray commands = obj.getJSONArray("cmd");
     for (int i = 0; i < commands.length(); i++) {

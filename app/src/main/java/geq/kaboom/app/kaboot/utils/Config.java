@@ -61,6 +61,10 @@ public class Config {
   public static String getLibsPath(Context context){
       return (context.getApplicationInfo().nativeLibraryDir);
   }
+    
+  public static String getKabmem(Context context){
+      return (getLibsPath(context)+"/libkabmem.so");
+    }  
   
   public static String getKaboot(Context context){
       return (getLibsPath(context)+"/libkaboot.so");

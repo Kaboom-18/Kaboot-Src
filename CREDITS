@@ -6,8 +6,8 @@ vmConsole: https://github.com/markbirss/vmConsole (terminal emulator and termina
 
 PRoot: https://github.com/proot-me/proot (renamed to libkaboot.so)(renamed to libkabooter.so and libkabooter32.so)
 
-Termux’s PRoot fork: https://github.com/termux/proot (renamed to libkaboot.so)(renamed to libkabooter.so and libkabooter32.so)
-
 libtalloc: https://talloc.samba.org/talloc/doc/html/index.html (renamed to libkabootoc.so)
+
+libandroid-shmem: https://github.com/pelya/android-shmem (renamed to libkabmem.so)
 
 All projects are licensed under GPLv3 or compatible licenses
